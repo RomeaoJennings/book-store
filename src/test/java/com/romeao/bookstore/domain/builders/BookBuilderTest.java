@@ -30,14 +30,14 @@ class BookBuilderTest {
     @BeforeEach
     void setUp() {
         genre = Genre.builder()
-                .withId(GENRE_ID)
-                .withName(GENRE_NAME)
+                .id(GENRE_ID)
+                .name(GENRE_NAME)
                 .build();
 
         author = Author.builder()
-                .withId(AUTHOR_ID)
-                .withFirstName(AUTHOR_FIRST)
-                .withLastName(AUTHOR_LAST)
+                .id(AUTHOR_ID)
+                .firstName(AUTHOR_FIRST)
+                .lastName(AUTHOR_LAST)
                 .build();
     }
 
@@ -45,12 +45,12 @@ class BookBuilderTest {
     void testBuild_withAllFields() {
         // when
         Book book = Book.builder()
-                .withId(ID)
-                .withName(NAME)
-                .withPrice(PRICE)
-                .withPublisher(PUBLISHER)
-                .withAuthors(author)
-                .withGenres(genre)
+                .id(ID)
+                .name(NAME)
+                .price(PRICE)
+                .publisher(PUBLISHER)
+                .authors(author)
+                .genres(genre)
                 .build();
 
         // then
@@ -69,7 +69,7 @@ class BookBuilderTest {
     @Test
     void testWithName() {
         // when
-        Book book = Book.builder().withName(NAME).build();
+        Book book = Book.builder().name(NAME).build();
 
         // then
         assertNotNull(book);
@@ -79,7 +79,7 @@ class BookBuilderTest {
     @Test
     void testWithPrice() {
         // when
-        Book book = Book.builder().withPrice(PRICE).build();
+        Book book = Book.builder().price(PRICE).build();
 
         // then
         assertNotNull(book);
@@ -89,7 +89,7 @@ class BookBuilderTest {
     @Test
     void withPublisher() {
         // when
-        Book book = Book.builder().withPublisher(PUBLISHER).build();
+        Book book = Book.builder().publisher(PUBLISHER).build();
 
         // then
         assertNotNull(book);
@@ -99,7 +99,7 @@ class BookBuilderTest {
     @Test
     void withGenres() {
         // when
-        Book book = Book.builder().withGenres(genre).build();
+        Book book = Book.builder().genres(genre).build();
 
         // then
         assertNotNull(book);
@@ -110,7 +110,7 @@ class BookBuilderTest {
     @Test
     void withAuthors() {
         // when
-        Book book = Book.builder().withAuthors(author).build();
+        Book book = Book.builder().authors(author).build();
 
         // then
         assertNotNull(book);

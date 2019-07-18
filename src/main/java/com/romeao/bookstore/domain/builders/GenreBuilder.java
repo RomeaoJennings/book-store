@@ -7,12 +7,12 @@ public class GenreBuilder {
 
     public Genre build() { return genre; }
 
-    public GenreBuilder withId(Integer id) {
+    public GenreBuilder id(Integer id) {
         genre.setId(id);
         return this;
     }
 
-    public GenreBuilder withName(String name) {
+    public GenreBuilder name(String name) {
         genre.setName(name);
         return this;
     }

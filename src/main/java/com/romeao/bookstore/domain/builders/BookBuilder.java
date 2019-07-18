@@ -18,42 +18,42 @@ public class BookBuilder {
         return book;
     }
 
-    public BookBuilder withId(Integer id) {
+    public BookBuilder id(Integer id) {
         book.setId(id);
         return this;
     }
 
-    public BookBuilder withName(String name) {
+    public BookBuilder name(String name) {
         book.setName(name);
         return this;
     }
 
-    public BookBuilder withPrice(double price) {
-        return withPrice(BigDecimal.valueOf(price));
+    public BookBuilder price(double price) {
+        return price(BigDecimal.valueOf(price));
     }
 
-    public BookBuilder withPrice(BigDecimal price) {
+    public BookBuilder price(BigDecimal price) {
         book.setPrice(price);
         return this;
     }
 
-    public BookBuilder withPublisher(String publisher) {
+    public BookBuilder publisher(String publisher) {
         book.setPublisher(publisher);
         return this;
     }
 
-    public BookBuilder withGenres(Iterable<Genre> genres) {
-        Set<Genre> result = new HashSet<>(StreamSupport.stream(genres.spliterator(), false)
-                .collect(Collectors.toSet()));
+    public BookBuilder genres(Iterable<Genre> genres) {
+        Set<Genre> result = StreamSupport.stream(genres.spliterator(), false)
+                .collect(Collectors.toSet());
         book.setGenres(result);
         return this;
     }
 
-    public BookBuilder withGenres(Genre... genres) {
-        return withGenres(Arrays.asList(genres));
+    public BookBuilder genres(Genre... genres) {
+        return genres(Arrays.asList(genres));
     }
 
-    public BookBuilder withAuthors(Iterable<Author> authors) {
+    public BookBuilder authors(Iterable<Author> authors) {
         Set<Author> result = new HashSet<>();
         for (Author author : authors) {
             author.getBooks().add(book);
@@ -63,7 +63,7 @@ public class BookBuilder {
         return this;
     }
 
-    public BookBuilder withAuthors(Author... authors) {
-        return withAuthors(Arrays.asList(authors));
+    public BookBuilder authors(Author... authors) {
+        return authors(Arrays.asList(authors));
     }
 }

@@ -14,16 +14,16 @@ class AuthorBuilderTest {
 
     private static final Integer BOOK_ID = 1;
     private static final String BOOK_NAME = "It";
-    private static final Book BOOK = Book.builder().withId(BOOK_ID).withName(BOOK_NAME).build();
+    private static final Book BOOK = Book.builder().id(BOOK_ID).name(BOOK_NAME).build();
 
     @Test
     void testAllFields() {
         // when
         Author author = Author.builder()
-                .withId(ID)
-                .withFirstName(FIRST)
-                .withLastName(LAST)
-                .withBooks(BOOK)
+                .id(ID)
+                .firstName(FIRST)
+                .lastName(LAST)
+                .books(BOOK)
                 .build();
 
         // then
@@ -38,7 +38,7 @@ class AuthorBuilderTest {
     @Test
     void testWithId() {
         // when
-        Author author = Author.builder().withId(ID).build();
+        Author author = Author.builder().id(ID).build();
 
         // then
         assertNotNull(author);
@@ -50,7 +50,7 @@ class AuthorBuilderTest {
     @Test
     void testWithFirstName() {
         // when
-        Author author = Author.builder().withFirstName(FIRST).build();
+        Author author = Author.builder().firstName(FIRST).build();
 
         // then
         assertNotNull(author);
@@ -62,7 +62,7 @@ class AuthorBuilderTest {
     @Test
     void testWithLastName() {
         // when
-        Author author = Author.builder().withLastName(LAST).build();
+        Author author = Author.builder().lastName(LAST).build();
 
         // then
         assertNotNull(author);
@@ -74,7 +74,7 @@ class AuthorBuilderTest {
     @Test
     void testWithBooks() {
         // when
-        Author author = Author.builder().withBooks(BOOK).build();
+        Author author = Author.builder().books(BOOK).build();
 
         // then
         assertNotNull(author);

@@ -12,7 +12,7 @@ class GenreBuilderTest {
     @Test
     void testAllFields() {
         // when
-        Genre genre = Genre.builder().withId(ID).withName(NAME).build();
+        Genre genre = Genre.builder().id(ID).name(NAME).build();
 
         // then
         assertNotNull(genre);
@@ -23,7 +23,7 @@ class GenreBuilderTest {
     @Test
     void testId() {
         // when
-        Genre genre = Genre.builder().withId(ID).build();
+        Genre genre = Genre.builder().id(ID).build();
 
         // then
         assertNotNull(genre);
@@ -34,7 +34,7 @@ class GenreBuilderTest {
     @Test
     void testName() {
         // when
-        Genre genre = Genre.builder().withName(NAME).build();
+        Genre genre = Genre.builder().name(NAME).build();
 
         // then
         assertNotNull(genre);

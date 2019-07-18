@@ -12,28 +12,28 @@ public class AuthorBuilder {
 
     public Author build() { return author; }
 
-    public AuthorBuilder withId(Integer id) {
+    public AuthorBuilder id(Integer id) {
         author.setId(id);
         return this;
     }
 
-    public AuthorBuilder withFirstName(String firstName) {
+    public AuthorBuilder firstName(String firstName) {
         author.setFirstName(firstName);
         return this;
     }
 
-    public AuthorBuilder withLastName(String lastName) {
+    public AuthorBuilder lastName(String lastName) {
         author.setLastName(lastName);
         return this;
     }
 
-    public AuthorBuilder withBooks(Iterable<Book> books) {
+    public AuthorBuilder books(Iterable<Book> books) {
         author.setBooks(StreamSupport.stream(books.spliterator(), false)
                 .collect(Collectors.toSet()));
         return this;
     }
 
-    public AuthorBuilder withBooks(Book... books) {
-        return withBooks(Arrays.asList(books));
+    public AuthorBuilder books(Book... books) {
+        return books(Arrays.asList(books));
     }
 }
