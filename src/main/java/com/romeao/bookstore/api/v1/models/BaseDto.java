@@ -8,6 +8,10 @@ import java.util.List;
 
 public class BaseDto {
 
-    @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<Link> links = new ArrayList<>();
+
+    public List<Link> getLinks() {
+        return links;
+    }
 }
