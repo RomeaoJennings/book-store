@@ -4,6 +4,7 @@ import com.romeao.bookstore.api.v1.models.GenreDto;
 import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.util.Link;
+import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,7 +113,7 @@ class GenreControllerTest {
     @Test
     void getGenreById() throws Exception {
         // given
-        GENRE_FIRST.getLinks().add(new Link("self", Endpoints.Genre.byGenreId(ID_FIRST)));
+        GENRE_FIRST.getLinks().add(new Link(LinkNames.SELF, Endpoints.Genre.byGenreId(ID_FIRST)));
         when(service.findById(ID_FIRST)).thenReturn(GENRE_FIRST);
 
         // when
@@ -120,7 +121,7 @@ class GenreControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo(NAME_FIRST)))
                 .andExpect(jsonPath("$.links", hasSize(1)))
-                .andExpect(jsonPath("$.links[0].name", equalTo("self")))
+                .andExpect(jsonPath("$.links[0].name", equalTo(LinkNames.SELF)))
                 .andExpect(jsonPath("$.links[0].url",
                         equalTo(Endpoints.Genre.byGenreId(ID_FIRST))));
 
