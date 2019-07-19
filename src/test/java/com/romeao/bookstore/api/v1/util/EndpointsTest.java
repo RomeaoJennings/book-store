@@ -53,6 +53,30 @@ class EndpointsTest {
     }
 
     @Test
+    void testAddPathVariables() {
+        // given
+        String var1 = "pizza";
+        String var2 = "pepperoni";
+
+        // when
+        String url = Endpoints.addPathVariables(BASE_URL, var1, var2);
+
+        // then
+        assertNotNull(url);
+        assertEquals("/baseUrl/pizza/pepperoni", url);
+    }
+
+    @Test
+    void testAddPathVariables_withEmptyList() {
+        // when
+        String url = Endpoints.addPathVariables(BASE_URL);
+
+        // then
+        assertNotNull(url);
+        assertEquals(BASE_URL, url);
+    }
+
+    @Test
     void testAddPageNumAndLimit() {
         // when
         String url = Endpoints.addPageNumAndLimit(BASE_URL, PAGE_NUM, LIMIT);
@@ -84,6 +108,5 @@ class EndpointsTest {
         assertThat(url, anyOf(
                 is(limitFirst),
                 is(pageNumFirst)));
-
     }
 }

@@ -17,27 +17,40 @@ import java.util.stream.Collectors;
 @Service
 public class GenreServiceImpl implements GenreService {
 
+    private static final GenreMapper genreMapper = GenreMapper.INSTANCE;
     private final GenreRepository genreRepository;
-    private static final GenreMapper GENRE_MAPPER = GenreMapper.INSTANCE;
 
     public GenreServiceImpl(GenreRepository genreRepository) {
         this.genreRepository = genreRepository;
     }
 
     private static GenreDto convertToDtoWithSelfLink(Genre entity) {
-        GenreDto dto = GENRE_MAPPER.toDto(entity);
+        if (entity == null) { return null; }
+        GenreDto dto = genreMapper.toDto(entity);
         dto.getLinks().add(new Link("self", Endpoints.Genre.byGenreId(entity.getId())));
         return dto;
     }
 
+    @Override
     public List<GenreDto> findAll() {
         return genreRepository.findAll(Sort.by("name")).stream()
                 .map(GenreServiceImpl::convertToDtoWithSelfLink)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Page<GenreDto> findAll(int pageNum, int pageLimit) {
         PageRequest page = PageRequest.of(pageNum, pageLimit, Sort.by("name"));
         return genreRepository.findAll(page).map(GenreServiceImpl::convertToDtoWithSelfLink);
+    }
+
+    @Override
+    public void deleteById(int genreId) {
+        genreRepository.deleteById(genreId);
+    }
+
+    @Override
+    public GenreDto findById(int genreId) {
+        return convertToDtoWithSelfLink(genreRepository.findById(genreId).orElse(null));
     }
 }

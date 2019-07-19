@@ -16,9 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,6 +27,8 @@ class GenreServiceImplTest {
     private static final String NAME_ONE = "Genre One";
     private static final Integer ID_TWO = 2;
     private static final String NAME_TWO = "Genre Two";
+
+    private static final Integer NOT_FOUND_ID = 3;
 
     private List<Genre> entityList;
     private Genre genreOne;
@@ -88,5 +90,45 @@ class GenreServiceImplTest {
         assertEquals("self", result.getContent().get(0).getLinks().get(0).getName());
         assertEquals(Endpoints.Genre.byGenreId(ID_ONE),
                 result.getContent().get(0).getLinks().get(0).getUrl());
+    }
+
+    @Test
+    void testFindById() {
+        // given
+        when(repository.findById(ID_ONE)).thenReturn(Optional.of(genreOne));
+
+        // when
+        GenreDto dto = service.findById(ID_ONE);
+
+        // then
+        assertNotNull(dto);
+        assertEquals(NAME_ONE, dto.getName());
+        assertEquals(1, dto.getLinks().size());
+        assertEquals("self", dto.getLinks().get(0).getName());
+        assertEquals(Endpoints.Genre.byGenreId(ID_ONE), dto.getLinks().get(0).getUrl());
+    }
+
+    @Test
+    void testFindById_notFound() {
+        // given
+        when(repository.findById(NOT_FOUND_ID)).thenReturn(Optional.empty());
+
+        // when
+        GenreDto dto = service.findById(NOT_FOUND_ID);
+
+        // then
+        assertNull(dto);
+        verify(repository, times(1)).findById(NOT_FOUND_ID);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void testDeleteById() {
+        // when
+        service.deleteById(ID_ONE);
+
+        // then
+        verify(repository, times(1)).deleteById(ID_ONE);
+        verifyNoMoreInteractions(repository);
     }
 }

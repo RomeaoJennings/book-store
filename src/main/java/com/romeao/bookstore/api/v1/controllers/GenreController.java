@@ -6,10 +6,7 @@ import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.util.ResourceMeta;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Endpoints.Genre.URL)
@@ -48,5 +45,22 @@ public class GenreController {
             // return results without paging information if request does not contain page info
             return GenreDtoList.of(genreService.findAll());
         }
+    }
+
+    @GetMapping("/{genreId}")
+    public GenreDto GetGenre(@PathVariable Integer genreId) {
+        // TODO: Add Error Checking for non-numeric input
+        // TODO: Add Error Checking for not found IDs
+
+        return genreService.findById(genreId);
+    }
+
+    @DeleteMapping("/{genreId}")
+    public void deleteGenreById(@PathVariable Integer genreId) {
+        // TODO: Add Error Checking for non-numeric input
+        // TODO: Add Error Checking for not-found IDs
+        // TODO: Add Error Handling for Data Constraint Exceptions
+
+        genreService.deleteById(genreId);
     }
 }

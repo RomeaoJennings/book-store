@@ -3,6 +3,7 @@ package com.romeao.bookstore.api.v1.controllers;
 import com.romeao.bookstore.api.v1.models.GenreDto;
 import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
+import com.romeao.bookstore.util.Link;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,20 +19,21 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class GenreControllerTest {
-
+    private static final Integer ID_FIRST = 1;
     private static final String NAME_FIRST = "Genre First";
     private static final String NAME_SECOND = "Genre Second";
     private static final String NAME_THIRD = "Genre Third";
 
-    private static final GenreDto GENRE_FIRST = new GenreDto();
-    private static final GenreDto GENRE_SECOND = new GenreDto();
-    private static final GenreDto GENRE_THIRD = new GenreDto();
+    private GenreDto GENRE_FIRST = new GenreDto();
+    private GenreDto GENRE_SECOND = new GenreDto();
+    private GenreDto GENRE_THIRD = new GenreDto();
 
     private List<GenreDto> dtoList;
 
@@ -51,6 +53,7 @@ class GenreControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         GENRE_FIRST.setName(NAME_FIRST);
+        GENRE_FIRST.getLinks().clear();
         GENRE_SECOND.setName(NAME_SECOND);
         GENRE_THIRD.setName(NAME_THIRD);
 
@@ -103,6 +106,34 @@ class GenreControllerTest {
                 .andExpect(jsonPath("$.genres[0].name", equalTo(NAME_SECOND)));
 
         verify(service, times(1)).findAll(pageNum, pageLimit);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void getGenreById() throws Exception {
+        // given
+        GENRE_FIRST.getLinks().add(new Link("self", Endpoints.Genre.byGenreId(ID_FIRST)));
+        when(service.findById(ID_FIRST)).thenReturn(GENRE_FIRST);
+
+        // when
+        mockMvc.perform(get(Endpoints.Genre.byGenreId(ID_FIRST)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", equalTo(NAME_FIRST)))
+                .andExpect(jsonPath("$.links", hasSize(1)))
+                .andExpect(jsonPath("$.links[0].name", equalTo("self")))
+                .andExpect(jsonPath("$.links[0].url",
+                        equalTo(Endpoints.Genre.byGenreId(ID_FIRST))));
+
+        verify(service, times(1)).findById(ID_FIRST);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void deleteGenreById() throws Exception {
+        // when
+        mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
+                .andExpect(status().isOk());
+        verify(service, times(1)).deleteById(ID_FIRST);
         verifyNoMoreInteractions(service);
     }
 }

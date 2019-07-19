@@ -9,4 +9,8 @@ public interface GenreService {
     List<GenreDto> findAll();
 
     Page<GenreDto> findAll(int pageNum, int pageLimit);
+
+    void deleteById(int genreId);
+
+    GenreDto findById(int genreId);
 }
