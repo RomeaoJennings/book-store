@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GenreServiceTest {
+class GenreServiceImplTest {
     private static final Integer ID_ONE = 1;
     private static final String NAME_ONE = "Genre One";
     private static final Integer ID_TWO = 2;
@@ -35,7 +35,7 @@ class GenreServiceTest {
     private GenreRepository repository;
 
     @InjectMocks
-    private GenreService service;
+    private GenreServiceImpl service;
 
     @BeforeEach
     void setUp() {
