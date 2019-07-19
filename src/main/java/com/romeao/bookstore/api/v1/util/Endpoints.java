@@ -46,6 +46,7 @@ public class Endpoints {
         return addParams(baseUrl, params);
     }
 
+
     public static class Genre {
         public static final String URL = BASE_API + "/genres";
 
@@ -55,6 +56,15 @@ public class Endpoints {
 
         public static String byGenreId(int genreId) {
             return addPathVariables(URL, String.valueOf(genreId));
+        }
+    }
+
+
+    public static class Author {
+        public static final String URL = BASE_API + "/authors";
+
+        public static String byAuthorId(int authorId) {
+            return addPathVariables(URL, String.valueOf(authorId));
         }
     }
 }
