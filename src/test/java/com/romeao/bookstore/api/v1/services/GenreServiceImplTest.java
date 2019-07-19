@@ -1,6 +1,7 @@
 package com.romeao.bookstore.api.v1.services;
 
-import com.romeao.bookstore.api.v1.models.GenreSummaryDto;
+import com.romeao.bookstore.api.v1.models.GenreDto;
+import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Genre;
 import com.romeao.bookstore.repositories.GenreRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,27 +46,31 @@ class GenreServiceImplTest {
     }
 
     @Test
-    void summarizeAll() {
+    void testFindAll() {
         // given
         when(repository.findAll(any(Sort.class))).thenReturn(entityList);
 
         // when
-        List<GenreSummaryDto> result = service.summarizeAll();
+        List<GenreDto> result = service.findAll();
 
         // then
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(NAME_ONE, result.get(0).getName());
-        assertEquals(0, result.get(0).getLinks().size());
+        assertEquals(1, result.get(0).getLinks().size());
+        assertEquals("self", result.get(0).getLinks().get(0).getName());
+        assertEquals(Endpoints.Genre.byGenreId(ID_ONE), result.get(0).getLinks().get(0).getUrl());
         assertEquals(NAME_TWO, result.get(1).getName());
-        assertEquals(0, result.get(1).getLinks().size());
+        assertEquals(1, result.get(1).getLinks().size());
+        assertEquals("self", result.get(1).getLinks().get(0).getName());
+        assertEquals(Endpoints.Genre.byGenreId(ID_TWO), result.get(1).getLinks().get(0).getUrl());
 
         verify(repository, times(1)).findAll(any(Sort.class));
         verifyNoMoreInteractions(repository);
     }
 
     @Test
-    void summarizeAll_withPaging() {
+    void testFindAll_withPaging() {
         //given
         when(repository.findAll(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(genreOne)));
@@ -73,10 +78,14 @@ class GenreServiceImplTest {
         int limit = 1;
 
         // when
-        Page<GenreSummaryDto> result = service.summarizeAll(pageNum, limit);
+        Page<GenreDto> result = service.findAll(pageNum, limit);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
         assertEquals(NAME_ONE, result.getContent().get(0).getName());
+        assertEquals(1, result.getContent().get(0).getLinks().size());
+        assertEquals("self", result.getContent().get(0).getLinks().get(0).getName());
+        assertEquals(Endpoints.Genre.byGenreId(ID_ONE),
+                result.getContent().get(0).getLinks().get(0).getUrl());
     }
 }

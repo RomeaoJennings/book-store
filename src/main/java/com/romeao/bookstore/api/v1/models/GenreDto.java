@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
 
 @JsonPropertyOrder({"name", "links"})
-public class GenreSummaryDto extends BaseDto implements Serializable {
+public class GenreDto extends BaseDto implements Serializable {
     private String name;
 
     public String getName() {

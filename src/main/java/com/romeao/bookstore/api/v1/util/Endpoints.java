@@ -10,11 +10,11 @@ public class Endpoints {
 
     static String addParams(String baseUrl, Map<String, String> params) {
         if (params.size() == 0) {
-            throw new IllegalArgumentException("You must provide at least one parameter.");
+            return baseUrl;
         }
 
-        StringBuilder builder = new StringBuilder(baseUrl);
-        builder.append('?');
+        StringBuilder builder = new StringBuilder(baseUrl)
+                .append('?');
         params.forEach((key, value) -> {
             builder.append(key);
             builder.append('=');
@@ -23,6 +23,19 @@ public class Endpoints {
         });
         // remove extra & after last parameter
         builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
+    }
+
+    static String addPathVariables(String baseUrl, String... pathVariables) {
+        if (pathVariables.length == 0) {
+            return baseUrl;
+        }
+        StringBuilder builder = new StringBuilder(baseUrl)
+                .append("/")
+                .append(pathVariables[0]);
+        for (int i = 1; i < pathVariables.length; i++) {
+            builder.append("/").append(pathVariables[i]);
+        }
         return builder.toString();
     }
 
@@ -38,6 +51,10 @@ public class Endpoints {
 
         public static String byPageAndLimit(int pageNum, int limit) {
             return addPageNumAndLimit(URL, pageNum, limit);
+        }
+
+        public static String byGenreId(int genreId) {
+            return addPathVariables(URL, String.valueOf(genreId));
         }
     }
 }

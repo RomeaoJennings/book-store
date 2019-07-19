@@ -1,6 +1,6 @@
 package com.romeao.bookstore.api.v1.controllers;
 
-import com.romeao.bookstore.api.v1.models.GenreSummaryDto;
+import com.romeao.bookstore.api.v1.models.GenreDto;
 import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,17 +29,17 @@ class GenreControllerTest {
     private static final String NAME_SECOND = "Genre Second";
     private static final String NAME_THIRD = "Genre Third";
 
-    private static final GenreSummaryDto GENRE_FIRST = new GenreSummaryDto();
-    private static final GenreSummaryDto GENRE_SECOND = new GenreSummaryDto();
-    private static final GenreSummaryDto GENRE_THIRD = new GenreSummaryDto();
+    private static final GenreDto GENRE_FIRST = new GenreDto();
+    private static final GenreDto GENRE_SECOND = new GenreDto();
+    private static final GenreDto GENRE_THIRD = new GenreDto();
 
-    private List<GenreSummaryDto> dtoList;
+    private List<GenreDto> dtoList;
 
     @Mock
     private GenreService service;
 
     @Mock
-    private Page<GenreSummaryDto> page;
+    private Page<GenreDto> page;
 
     @InjectMocks
     private GenreController controller;
@@ -66,14 +66,14 @@ class GenreControllerTest {
     @Test
     void getAllGenres() throws Exception {
         // given
-        when(service.summarizeAll()).thenReturn(dtoList);
+        when(service.findAll()).thenReturn(dtoList);
 
         mockMvc.perform(get(Endpoints.Genre.URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.genres[*].name",
                         containsInAnyOrder(NAME_FIRST, NAME_SECOND, NAME_THIRD)));
 
-        verify(service, times(1)).summarizeAll();
+        verify(service, times(1)).findAll();
         verifyNoMoreInteractions(service);
     }
 
@@ -87,7 +87,7 @@ class GenreControllerTest {
         when(page.getContent()).thenReturn(List.of(GENRE_SECOND));
         when(page.isFirst()).thenReturn(false);
         when(page.isLast()).thenReturn(false);
-        when(service.summarizeAll(pageNum, pageLimit)).thenReturn(page);
+        when(service.findAll(pageNum, pageLimit)).thenReturn(page);
 
         // when
         mockMvc.perform(get(Endpoints.Genre.byPageAndLimit(pageNum, pageLimit)))
@@ -102,7 +102,7 @@ class GenreControllerTest {
                 .andExpect(jsonPath("$.genres", hasSize(1)))
                 .andExpect(jsonPath("$.genres[0].name", equalTo(NAME_SECOND)));
 
-        verify(service, times(1)).summarizeAll(pageNum, pageLimit);
+        verify(service, times(1)).findAll(pageNum, pageLimit);
         verifyNoMoreInteractions(service);
     }
 }

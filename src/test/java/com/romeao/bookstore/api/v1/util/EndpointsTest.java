@@ -9,8 +9,8 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EndpointsTest {
     private static final String BASE_URL = "/baseUrl";
@@ -44,8 +44,12 @@ class EndpointsTest {
 
     @Test
     void testAddParams_withEmptyParameterList() {
-        assertThrows(IllegalArgumentException.class,
-                () -> Endpoints.addParams(BASE_URL, new HashMap<>()));
+        // when
+        String url = Endpoints.addParams(BASE_URL, new HashMap<>());
+
+        // then
+        assertNotNull(url);
+        assertEquals(BASE_URL, url);
     }
 
     @Test

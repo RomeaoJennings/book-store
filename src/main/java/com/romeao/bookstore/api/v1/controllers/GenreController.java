@@ -1,7 +1,7 @@
 package com.romeao.bookstore.api.v1.controllers;
 
-import com.romeao.bookstore.api.v1.models.GenreSummaryDto;
-import com.romeao.bookstore.api.v1.models.GenreSummaryDtoList;
+import com.romeao.bookstore.api.v1.models.GenreDto;
+import com.romeao.bookstore.api.v1.models.GenreDtoList;
 import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.util.ResourceMeta;
@@ -22,14 +22,14 @@ public class GenreController {
     }
 
     @GetMapping
-    public GenreSummaryDtoList getAllGenres(@RequestParam(required = false) Integer limit,
-                                            @RequestParam(required = false, defaultValue = "0") Integer pageNum) {
+    public GenreDtoList getAllGenres(@RequestParam(required = false) Integer limit,
+                                     @RequestParam(required = false, defaultValue = "0") Integer pageNum) {
 
         // TODO: Add Error Checking for non-numeric input
         // TODO: Add Error Checking for negative numeric input
 
         if (limit != null) {
-            Page<GenreSummaryDto> page = genreService.summarizeAll(pageNum, limit);
+            Page<GenreDto> page = genreService.findAll(pageNum, limit);
             ResourceMeta meta = ResourceMeta.builder()
                     .count(page.getTotalElements())
                     .limit(limit)
@@ -43,10 +43,10 @@ public class GenreController {
             if (!page.isLast()) {
                 meta.setNextUrl(Endpoints.Genre.byPageAndLimit(pageNum + 1, limit));
             }
-            return GenreSummaryDtoList.of(page.getContent(), meta);
+            return GenreDtoList.of(page.getContent(), meta);
         } else {
             // return results without paging information if request does not contain page info
-            return GenreSummaryDtoList.of(genreService.summarizeAll());
+            return GenreDtoList.of(genreService.findAll());
         }
     }
 }

@@ -1,12 +1,12 @@
 package com.romeao.bookstore.api.v1.services;
 
-import com.romeao.bookstore.api.v1.models.GenreSummaryDto;
+import com.romeao.bookstore.api.v1.models.GenreDto;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface GenreService {
-    List<GenreSummaryDto> summarizeAll();
+    List<GenreDto> findAll();
 
-    Page<GenreSummaryDto> summarizeAll(int pageNum, int pageLimit);
+    Page<GenreDto> findAll(int pageNum, int pageLimit);
 }
