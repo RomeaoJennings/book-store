@@ -94,7 +94,7 @@ class GenreControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meta.count", equalTo(count.intValue())))
                 .andExpect(jsonPath("$.meta.limit", equalTo(pageLimit)))
-                .andExpect(jsonPath("$.meta.page", equalTo(pageNum)))
+                .andExpect(jsonPath("$.meta.pageNum", equalTo(pageNum)))
                 .andExpect(jsonPath("$.meta.previousUrl",
                         equalTo(Endpoints.Genre.byPageAndLimit(pageNum - 1, pageLimit))))
                 .andExpect(jsonPath("$.meta.nextUrl",

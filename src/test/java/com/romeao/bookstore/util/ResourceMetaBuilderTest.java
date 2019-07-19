@@ -27,7 +27,7 @@ class ResourceMetaBuilderTest {
         assertNotNull(meta);
         assertEquals(COUNT, meta.getCount());
         assertEquals(LIMIT, meta.getLimit());
-        assertEquals(PAGE, meta.getPage());
+        assertEquals(PAGE, meta.getPageNum());
         assertEquals(PREV_URL, meta.getPreviousUrl());
         assertEquals(NEXT_URL, meta.getNextUrl());
     }

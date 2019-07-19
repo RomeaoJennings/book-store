@@ -71,7 +71,7 @@ class GenreServiceImplTest {
 
     @Test
     void testFindAll_withPaging() {
-        //given
+        // given
         when(repository.findAll(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(genreOne)));
         int pageNum = 0;
@@ -80,6 +80,7 @@ class GenreServiceImplTest {
         // when
         Page<GenreDto> result = service.findAll(pageNum, limit);
 
+        // then
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
         assertEquals(NAME_ONE, result.getContent().get(0).getName());

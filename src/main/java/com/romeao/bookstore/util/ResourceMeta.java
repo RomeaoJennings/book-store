@@ -13,7 +13,7 @@ public class ResourceMeta implements Serializable {
     private Integer limit;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer page;
+    private Integer pageNum;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String previousUrl;
@@ -41,12 +41,12 @@ public class ResourceMeta implements Serializable {
         this.limit = limit;
     }
 
-    public Integer getPage() {
-        return page;
+    public Integer getPageNum() {
+        return pageNum;
     }
 
-    void setPage(Integer page) {
-        this.page = page;
+    void setPageNum(Integer page) {
+        this.pageNum = page;
     }
 
     public String getPreviousUrl() {

@@ -18,7 +18,7 @@ public class ResourceMetaBuilder {
     }
 
     public ResourceMetaBuilder page(Integer page) {
-        meta.setPage(page);
+        meta.setPageNum(page);
         return this;
     }
 
