@@ -1,5 +1,8 @@
 package com.romeao.bookstore.api.v1.models;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonPropertyOrder({"firstName", "lastName", "links"})
 public class AuthorDto extends BaseDto {
     private String firstName;
     private String lastName;

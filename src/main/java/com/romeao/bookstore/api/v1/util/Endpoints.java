@@ -63,6 +63,10 @@ public class Endpoints {
     public static class Author {
         public static final String URL = BASE_API + "/authors";
 
+        public static String byPageAndLimit(int pageNum, int limit) {
+            return addPageNumAndLimit(URL, pageNum, limit);
+        }
+
         public static String byAuthorId(int authorId) {
             return addPathVariables(URL, String.valueOf(authorId));
         }
