@@ -9,8 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,23 +27,27 @@ class GenreServiceTest {
     private static final Integer ID_TWO = 2;
     private static final String NAME_TWO = "Genre Two";
 
-    private static List<Genre> entityList;
+    private List<Genre> entityList;
+    private Genre genreOne;
+    private Genre genreTwo;
+
     @Mock
-    private static GenreRepository repository;
+    private GenreRepository repository;
+
     @InjectMocks
-    private static GenreService service;
+    private GenreService service;
 
     @BeforeEach
     void setUp() {
-        entityList = new ArrayList<>();
-        entityList.add(Genre.builder().id(ID_ONE).name(NAME_ONE).build());
-        entityList.add(Genre.builder().id(ID_TWO).name(NAME_TWO).build());
+        genreOne = Genre.builder().id(ID_ONE).name(NAME_ONE).build();
+        genreTwo = Genre.builder().id(ID_TWO).name(NAME_TWO).build();
+        entityList = List.of(genreOne, genreTwo);
     }
 
     @Test
     void summarizeAll() {
         // given
-        when(repository.findAll()).thenReturn(entityList);
+        when(repository.findAll(any(Sort.class))).thenReturn(entityList);
 
         // when
         List<GenreSummaryDto> result = service.summarizeAll();
@@ -53,7 +60,23 @@ class GenreServiceTest {
         assertEquals(NAME_TWO, result.get(1).getName());
         assertEquals(0, result.get(1).getLinks().size());
 
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAll(any(Sort.class));
         verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void summarizeAll_withPaging() {
+        //given
+        when(repository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(genreOne)));
+        int pageNum = 0;
+        int limit = 1;
+
+        // when
+        Page<GenreSummaryDto> result = service.summarizeAll(pageNum, limit);
+
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+        assertEquals(NAME_ONE, result.getContent().get(0).getName());
     }
 }

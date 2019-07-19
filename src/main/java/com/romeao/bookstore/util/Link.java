@@ -1,6 +1,8 @@
 package com.romeao.bookstore.util;
 
-public class Link {
+import java.io.Serializable;
+
+public class Link implements Serializable {
     private String name;
     private String url;
 

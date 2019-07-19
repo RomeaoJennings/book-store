@@ -9,13 +9,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -24,15 +25,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class GenreControllerTest {
 
-    private static final String NAME_ONE = "Genre One";
-    private static final String NAME_TWO = "Genre Two";
+    private static final String NAME_FIRST = "Genre First";
+    private static final String NAME_SECOND = "Genre Second";
+    private static final String NAME_THIRD = "Genre Third";
 
-    private static List<GenreSummaryDto> dtoList;
+    private static final GenreSummaryDto GENRE_FIRST = new GenreSummaryDto();
+    private static final GenreSummaryDto GENRE_SECOND = new GenreSummaryDto();
+    private static final GenreSummaryDto GENRE_THIRD = new GenreSummaryDto();
+
+    private List<GenreSummaryDto> dtoList;
+
     @Mock
-    private static GenreService service;
+    private GenreService service;
+
+    @Mock
+    private Page<GenreSummaryDto> page;
 
     @InjectMocks
-    private static GenreController controller;
+    private GenreController controller;
 
     private static MockMvc mockMvc;
 
@@ -40,13 +50,17 @@ class GenreControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
-        dtoList = new ArrayList<>();
-        GenreSummaryDto dto1 = new GenreSummaryDto();
-        dto1.setName(NAME_ONE);
-        dtoList.add(dto1);
-        GenreSummaryDto dto2 = new GenreSummaryDto();
-        dto2.setName(NAME_TWO);
-        dtoList.add(dto2);
+        GENRE_FIRST.setName(NAME_FIRST);
+        GENRE_SECOND.setName(NAME_SECOND);
+        GENRE_THIRD.setName(NAME_THIRD);
+
+        dtoList = List.of(GENRE_FIRST, GENRE_SECOND, GENRE_THIRD);
+    }
+
+    @Test
+    void allMocksLoad() {
+        assertNotNull(page);
+        assertNotNull(service);
     }
 
     @Test
@@ -57,9 +71,38 @@ class GenreControllerTest {
         mockMvc.perform(get(Endpoints.Genre.URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.genres[*].name",
-                        containsInAnyOrder(NAME_ONE, NAME_TWO)));
+                        containsInAnyOrder(NAME_FIRST, NAME_SECOND, NAME_THIRD)));
 
         verify(service, times(1)).summarizeAll();
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void getAllGenres_withPageAndLimit() throws Exception {
+        // given
+        int pageNum = 1;
+        int pageLimit = 1;
+        Long count = 3L;
+        when(page.getTotalElements()).thenReturn(count);
+        when(page.getContent()).thenReturn(List.of(GENRE_SECOND));
+        when(page.isFirst()).thenReturn(false);
+        when(page.isLast()).thenReturn(false);
+        when(service.summarizeAll(pageNum, pageLimit)).thenReturn(page);
+
+        // when
+        mockMvc.perform(get(Endpoints.Genre.byPageAndLimit(pageNum, pageLimit)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.meta.count", equalTo(count.intValue())))
+                .andExpect(jsonPath("$.meta.limit", equalTo(pageLimit)))
+                .andExpect(jsonPath("$.meta.page", equalTo(pageNum)))
+                .andExpect(jsonPath("$.meta.previousUrl",
+                        equalTo(Endpoints.Genre.byPageAndLimit(pageNum - 1, pageLimit))))
+                .andExpect(jsonPath("$.meta.nextUrl",
+                        equalTo(Endpoints.Genre.byPageAndLimit(pageNum + 1, pageLimit))))
+                .andExpect(jsonPath("$.genres", hasSize(1)))
+                .andExpect(jsonPath("$.genres[0].name", equalTo(NAME_SECOND)));
+
+        verify(service, times(1)).summarizeAll(pageNum, pageLimit);
         verifyNoMoreInteractions(service);
     }
 }
