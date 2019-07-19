@@ -4,6 +4,7 @@ import com.romeao.bookstore.api.v1.models.GenreDto;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Genre;
 import com.romeao.bookstore.repositories.GenreRepository;
+import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,11 +61,11 @@ class GenreServiceImplTest {
         assertEquals(2, result.size());
         assertEquals(NAME_ONE, result.get(0).getName());
         assertEquals(1, result.get(0).getLinks().size());
-        assertEquals("self", result.get(0).getLinks().get(0).getName());
+        assertEquals(LinkNames.SELF, result.get(0).getLinks().get(0).getName());
         assertEquals(Endpoints.Genre.byGenreId(ID_ONE), result.get(0).getLinks().get(0).getUrl());
         assertEquals(NAME_TWO, result.get(1).getName());
         assertEquals(1, result.get(1).getLinks().size());
-        assertEquals("self", result.get(1).getLinks().get(0).getName());
+        assertEquals(LinkNames.SELF, result.get(1).getLinks().get(0).getName());
         assertEquals(Endpoints.Genre.byGenreId(ID_TWO), result.get(1).getLinks().get(0).getUrl());
 
         verify(repository, times(1)).findAll(any(Sort.class));
@@ -87,7 +88,7 @@ class GenreServiceImplTest {
         assertEquals(1, result.getContent().size());
         assertEquals(NAME_ONE, result.getContent().get(0).getName());
         assertEquals(1, result.getContent().get(0).getLinks().size());
-        assertEquals("self", result.getContent().get(0).getLinks().get(0).getName());
+        assertEquals(LinkNames.SELF, result.getContent().get(0).getLinks().get(0).getName());
         assertEquals(Endpoints.Genre.byGenreId(ID_ONE),
                 result.getContent().get(0).getLinks().get(0).getUrl());
     }
@@ -104,7 +105,7 @@ class GenreServiceImplTest {
         assertNotNull(dto);
         assertEquals(NAME_ONE, dto.getName());
         assertEquals(1, dto.getLinks().size());
-        assertEquals("self", dto.getLinks().get(0).getName());
+        assertEquals(LinkNames.SELF, dto.getLinks().get(0).getName());
         assertEquals(Endpoints.Genre.byGenreId(ID_ONE), dto.getLinks().get(0).getUrl());
     }
 

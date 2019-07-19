@@ -6,6 +6,7 @@ import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Author;
 import com.romeao.bookstore.repositories.AuthorRepository;
 import com.romeao.bookstore.util.Link;
+import com.romeao.bookstore.util.LinkNames;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class AuthorServiceImpl implements AuthorService {
     private static AuthorDto convertToDtoWithSelfLink(Author entity) {
         if (entity == null) { return null; }
         AuthorDto dto = authorMapper.toDto(entity);
-        dto.getLinks().add(new Link("self", Endpoints.Author.byAuthorId(entity.getId())));
+        dto.getLinks().add(new Link(LinkNames.SELF, Endpoints.Author.byAuthorId(entity.getId())));
         return dto;
     }
 

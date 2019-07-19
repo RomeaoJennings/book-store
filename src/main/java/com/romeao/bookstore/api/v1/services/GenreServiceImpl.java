@@ -6,6 +6,7 @@ import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Genre;
 import com.romeao.bookstore.repositories.GenreRepository;
 import com.romeao.bookstore.util.Link;
+import com.romeao.bookstore.util.LinkNames;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,7 +28,7 @@ public class GenreServiceImpl implements GenreService {
     private static GenreDto convertToDtoWithSelfLink(Genre entity) {
         if (entity == null) { return null; }
         GenreDto dto = genreMapper.toDto(entity);
-        dto.getLinks().add(new Link("self", Endpoints.Genre.byGenreId(entity.getId())));
+        dto.getLinks().add(new Link(LinkNames.SELF, Endpoints.Genre.byGenreId(entity.getId())));
         return dto;
     }
 

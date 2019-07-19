@@ -1,8 +1,10 @@
 package com.romeao.bookstore.api.v1.services;
 
 import com.romeao.bookstore.api.v1.models.AuthorDto;
+import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Author;
 import com.romeao.bookstore.repositories.AuthorRepository;
+import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,5 +75,9 @@ class AuthorServiceImplTest {
         assertEquals(LAST_TWO, dtoList.get(1).getLastName());
         assertEquals(FIRST_THREE, dtoList.get(2).getFirstName());
         assertEquals(LAST_THREE, dtoList.get(2).getLastName());
+
+        assertEquals(Endpoints.Author.byAuthorId(ID_ONE),
+                dtoList.get(0).getLinks().get(0).getUrl());
+        assertEquals(LinkNames.SELF, dtoList.get(0).getLinks().get(0).getName());
     }
 }
