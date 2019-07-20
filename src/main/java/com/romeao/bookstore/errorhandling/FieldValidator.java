@@ -22,13 +22,13 @@ public class FieldValidator {
         }
     }
 
-    public static List<ApiValidationError> validateIntFields(Map<String, String> fields) {
+    private static List<ApiValidationError> validateIntFields(Map<String, String> fields) {
         List<ApiValidationError> result = new ArrayList<>();
 
         fields.forEach((fieldName, fieldVal) -> {
             if (!isValidInt(fieldVal)) {
                 result.add(new ApiValidationError(fieldName,
-                        ErrorMessages.INVALID_INTEGER, fieldName));
+                        ErrorMessages.INVALID_INTEGER, fieldVal));
             }
         });
         return result;
@@ -46,7 +46,7 @@ public class FieldValidator {
         return Integer.parseInt(fieldVal);
     }
 
-    public static List<ApiValidationError> validatePageParameters(String limit, String pageNum) {
+    private static List<ApiValidationError> validatePageParameters(String limit, String pageNum) {
         Map<String, String> fields = new HashMap<>();
         fields.put(LIMIT, limit);
         fields.put(PAGE_NUM, pageNum);

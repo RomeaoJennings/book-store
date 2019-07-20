@@ -1,6 +1,8 @@
 package com.romeao.bookstore.api.v1.genre;
 
 import com.romeao.bookstore.api.v1.util.Endpoints;
+import com.romeao.bookstore.api.v1.util.ErrorMessages;
+import com.romeao.bookstore.errorhandling.ApiExceptionHandler;
 import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -29,27 +32,24 @@ class GenreControllerTest {
     private static final String NAME_FIRST = "Genre First";
     private static final String NAME_SECOND = "Genre Second";
     private static final String NAME_THIRD = "Genre Third";
-
+    private static MockMvc mockMvc;
     private GenreDto GENRE_FIRST = new GenreDto();
     private GenreDto GENRE_SECOND = new GenreDto();
     private GenreDto GENRE_THIRD = new GenreDto();
-
     private List<GenreDto> dtoList;
-
     @Mock
     private GenreService service;
-
     @Mock
     private Page<GenreDto> page;
-
     @InjectMocks
     private GenreController controller;
 
-    private static MockMvc mockMvc;
-
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(controller)
+                .setControllerAdvice(new ApiExceptionHandler())
+                .build();
 
         GENRE_FIRST.setName(NAME_FIRST);
         GENRE_FIRST.getLinks().clear();
@@ -106,6 +106,28 @@ class GenreControllerTest {
 
         verify(service, times(1)).findAll(pageNum, pageLimit);
         verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void getAllGenres_withNonIntPageAndLimit() throws Exception {
+        mockMvc.perform(get("/api/v1/genres?limit=abc&pageNum=def"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message",
+                        equalTo(ErrorMessages.INVALID_REQUEST_PARAMETERS)))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.BAD_REQUEST.name())))
+                .andExpect(jsonPath("$.statusCode",
+                        equalTo(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.subErrors", hasSize(2)))
+                .andExpect(jsonPath("$.subErrors[*].field",
+                        containsInAnyOrder("limit", "pageNum")))
+                .andExpect(jsonPath("$.subErrors[*].rejectedValue",
+                        containsInAnyOrder("abc", "def")))
+                .andExpect(jsonPath("$.subErrors[*].message",
+                        containsInAnyOrder(
+                                ErrorMessages.INVALID_INTEGER,
+                                ErrorMessages.INVALID_INTEGER)));
+
+        verifyZeroInteractions(service);
     }
 
     @Test
