@@ -109,8 +109,8 @@ class GenreControllerTest {
     }
 
     @Test
-    void getAllGenres_withNonIntPageAndLimit() throws Exception {
-        mockMvc.perform(get("/api/v1/genres?limit=abc&pageNum=def"))
+    void getAllGenres_withBadPageAndLimit() throws Exception {
+        mockMvc.perform(get("/api/v1/genres?limit=-1&pageNum=def"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message",
                         equalTo(ErrorMessages.INVALID_REQUEST_PARAMETERS)))
@@ -121,10 +121,10 @@ class GenreControllerTest {
                 .andExpect(jsonPath("$.subErrors[*].field",
                         containsInAnyOrder("limit", "pageNum")))
                 .andExpect(jsonPath("$.subErrors[*].rejectedValue",
-                        containsInAnyOrder("abc", "def")))
+                        containsInAnyOrder("-1", "def")))
                 .andExpect(jsonPath("$.subErrors[*].message",
                         containsInAnyOrder(
-                                ErrorMessages.INVALID_INTEGER,
+                                ErrorMessages.BAD_LIMIT_VALUE,
                                 ErrorMessages.INVALID_INTEGER)));
 
         verifyZeroInteractions(service);

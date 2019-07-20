@@ -15,23 +15,11 @@ public class ApiValidationError extends ApiSubError {
         return field;
     }
 
-    public void setField(String field) {
-        this.field = field;
-    }
-
     public Object getRejectedValue() {
         return rejectedValue;
     }
 
-    public void setRejectedValue(Object rejectedValue) {
-        this.rejectedValue = rejectedValue;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 }
