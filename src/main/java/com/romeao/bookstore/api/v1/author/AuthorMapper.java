@@ -1,6 +1,6 @@
-package com.romeao.bookstore.api.v1.mappers;
+package com.romeao.bookstore.api.v1.author;
 
-import com.romeao.bookstore.api.v1.models.AuthorDto;
+import com.romeao.bookstore.api.v1.util.BaseMapper;
 import com.romeao.bookstore.domain.Author;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

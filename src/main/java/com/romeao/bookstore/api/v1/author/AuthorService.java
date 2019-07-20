@@ -1,6 +1,5 @@
-package com.romeao.bookstore.api.v1.services;
+package com.romeao.bookstore.api.v1.author;
 
-import com.romeao.bookstore.api.v1.models.AuthorDto;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

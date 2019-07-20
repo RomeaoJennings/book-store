@@ -1,6 +1,7 @@
-package com.romeao.bookstore.api.v1.models;
+package com.romeao.bookstore.api.v1.genre;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.romeao.bookstore.api.v1.util.BaseDto;
 
 import java.io.Serializable;
 

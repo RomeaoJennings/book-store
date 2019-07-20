@@ -1,4 +1,4 @@
-package com.romeao.bookstore.api.v1.models;
+package com.romeao.bookstore.api.v1.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.romeao.bookstore.util.Link;

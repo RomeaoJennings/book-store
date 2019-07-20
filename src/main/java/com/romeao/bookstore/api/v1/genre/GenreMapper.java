@@ -1,6 +1,6 @@
-package com.romeao.bookstore.api.v1.mappers;
+package com.romeao.bookstore.api.v1.genre;
 
-import com.romeao.bookstore.api.v1.models.GenreDto;
+import com.romeao.bookstore.api.v1.util.BaseMapper;
 import com.romeao.bookstore.domain.Genre;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

@@ -1,7 +1,5 @@
-package com.romeao.bookstore.api.v1.services;
+package com.romeao.bookstore.api.v1.author;
 
-import com.romeao.bookstore.api.v1.mappers.AuthorMapper;
-import com.romeao.bookstore.api.v1.models.AuthorDto;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Author;
 import com.romeao.bookstore.repositories.AuthorRepository;

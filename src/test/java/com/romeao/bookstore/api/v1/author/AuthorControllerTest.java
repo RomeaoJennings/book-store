@@ -1,7 +1,5 @@
-package com.romeao.bookstore.api.v1.controllers;
+package com.romeao.bookstore.api.v1.author;
 
-import com.romeao.bookstore.api.v1.models.GenreDto;
-import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
@@ -18,7 +16,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,115 +23,110 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-class GenreControllerTest {
-    private static final Integer ID_FIRST = 1;
-    private static final String NAME_FIRST = "Genre First";
-    private static final String NAME_SECOND = "Genre Second";
-    private static final String NAME_THIRD = "Genre Third";
+class AuthorControllerTest {
+    private static final Integer ID_ONE = 1;
+    private static final String FIRST_ONE = "First One";
+    private static final String FIRST_TWO = "First Two";
+    private static final String FIRST_THREE = "First Three";
 
-    private GenreDto GENRE_FIRST = new GenreDto();
-    private GenreDto GENRE_SECOND = new GenreDto();
-    private GenreDto GENRE_THIRD = new GenreDto();
-
-    private List<GenreDto> dtoList;
-
-    @Mock
-    private GenreService service;
-
-    @Mock
-    private Page<GenreDto> page;
-
-    @InjectMocks
-    private GenreController controller;
-
+    private static final String LAST_ONE = "Last One";
+    private static final String LAST_TWO = "Last Two";
+    private static final String LAST_THREE = "Last Three";
     private static MockMvc mockMvc;
+    private AuthorDto authorOne;
+    private AuthorDto authorTwo;
+    private AuthorDto authorThree;
+    private List<AuthorDto> dtoList;
+    @Mock
+    private AuthorService service;
+    @Mock
+    private Page<AuthorDto> page;
+    @InjectMocks
+    private AuthorController controller;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
-        GENRE_FIRST.setName(NAME_FIRST);
-        GENRE_FIRST.getLinks().clear();
-        GENRE_SECOND.setName(NAME_SECOND);
-        GENRE_THIRD.setName(NAME_THIRD);
+        authorOne = new AuthorDto(FIRST_ONE, LAST_ONE);
+        authorTwo = new AuthorDto(FIRST_TWO, LAST_TWO);
+        authorThree = new AuthorDto(FIRST_THREE, LAST_THREE);
 
-        dtoList = List.of(GENRE_FIRST, GENRE_SECOND, GENRE_THIRD);
+        dtoList = List.of(authorOne, authorTwo, authorThree);
     }
 
     @Test
-    void allMocksLoad() {
-        assertNotNull(page);
-        assertNotNull(service);
-    }
-
-    @Test
-    void getAllGenres() throws Exception {
+    void getAllAuthors() throws Exception {
         // given
         when(service.findAll()).thenReturn(dtoList);
 
-        mockMvc.perform(get(Endpoints.Genre.URL))
+        mockMvc.perform(get(Endpoints.Author.URL))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.genres[*].name",
-                        containsInAnyOrder(NAME_FIRST, NAME_SECOND, NAME_THIRD)));
+                .andExpect(jsonPath("$.authors[*].firstName",
+                        containsInAnyOrder(FIRST_ONE, FIRST_TWO, FIRST_THREE)))
+                .andExpect(jsonPath("$.authors[*].lastName",
+                        containsInAnyOrder(LAST_ONE, LAST_TWO, LAST_THREE)));
 
         verify(service, times(1)).findAll();
         verifyNoMoreInteractions(service);
     }
 
     @Test
-    void getAllGenres_withPageAndLimit() throws Exception {
+    void getAllAuthors_withPageAndLimit() throws Exception {
         // given
         int pageNum = 1;
         int pageLimit = 1;
         Long count = 3L;
         when(page.getTotalElements()).thenReturn(count);
-        when(page.getContent()).thenReturn(List.of(GENRE_SECOND));
+        when(page.getContent()).thenReturn(List.of(authorTwo));
         when(page.isFirst()).thenReturn(false);
         when(page.isLast()).thenReturn(false);
         when(service.findAll(pageNum, pageLimit)).thenReturn(page);
 
         // when
-        mockMvc.perform(get(Endpoints.Genre.byPageAndLimit(pageNum, pageLimit)))
+        mockMvc.perform(get(Endpoints.Author.byPageAndLimit(pageNum, pageLimit)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meta.count", equalTo(count.intValue())))
                 .andExpect(jsonPath("$.meta.limit", equalTo(pageLimit)))
                 .andExpect(jsonPath("$.meta.pageNum", equalTo(pageNum)))
                 .andExpect(jsonPath("$.meta.previousUrl",
-                        equalTo(Endpoints.Genre.byPageAndLimit(pageNum - 1, pageLimit))))
+                        equalTo(Endpoints.Author.byPageAndLimit(pageNum - 1, pageLimit))))
                 .andExpect(jsonPath("$.meta.nextUrl",
-                        equalTo(Endpoints.Genre.byPageAndLimit(pageNum + 1, pageLimit))))
-                .andExpect(jsonPath("$.genres", hasSize(1)))
-                .andExpect(jsonPath("$.genres[0].name", equalTo(NAME_SECOND)));
+                        equalTo(Endpoints.Author.byPageAndLimit(pageNum + 1, pageLimit))))
+                .andExpect(jsonPath("$.authors", hasSize(1)))
+                .andExpect(jsonPath("$.authors[0].firstName", equalTo(FIRST_TWO)))
+                .andExpect(jsonPath("$.authors[0].lastName", equalTo(LAST_TWO)));
 
         verify(service, times(1)).findAll(pageNum, pageLimit);
         verifyNoMoreInteractions(service);
     }
 
     @Test
-    void getGenreById() throws Exception {
+    void getAuthorById() throws Exception {
         // given
-        GENRE_FIRST.getLinks().add(new Link(LinkNames.SELF, Endpoints.Genre.byGenreId(ID_FIRST)));
-        when(service.findById(ID_FIRST)).thenReturn(GENRE_FIRST);
+        authorOne.getLinks().add(new Link(LinkNames.SELF, Endpoints.Author.byAuthorId(ID_ONE)));
+        when(service.findById(ID_ONE)).thenReturn(authorOne);
 
         // when
-        mockMvc.perform(get(Endpoints.Genre.byGenreId(ID_FIRST)))
+        mockMvc.perform(get(Endpoints.Author.byAuthorId(ID_ONE)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", equalTo(NAME_FIRST)))
+                .andExpect(jsonPath("$.firstName", equalTo(FIRST_ONE)))
+                .andExpect(jsonPath("$.lastName", equalTo(LAST_ONE)))
                 .andExpect(jsonPath("$.links", hasSize(1)))
                 .andExpect(jsonPath("$.links[0].name", equalTo(LinkNames.SELF)))
                 .andExpect(jsonPath("$.links[0].url",
-                        equalTo(Endpoints.Genre.byGenreId(ID_FIRST))));
+                        equalTo(Endpoints.Author.byAuthorId(ID_ONE))));
 
-        verify(service, times(1)).findById(ID_FIRST);
+        verify(service, times(1)).findById(ID_ONE);
         verifyNoMoreInteractions(service);
     }
 
     @Test
-    void deleteGenreById() throws Exception {
+    void deleteAuthorById() throws Exception {
         // when
-        mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
+        mockMvc.perform(delete(Endpoints.Author.byAuthorId(ID_ONE)))
                 .andExpect(status().isOk());
-        verify(service, times(1)).deleteById(ID_FIRST);
+        verify(service, times(1)).deleteById(ID_ONE);
         verifyNoMoreInteractions(service);
     }
 }

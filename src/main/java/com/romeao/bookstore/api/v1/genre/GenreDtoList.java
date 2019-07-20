@@ -1,4 +1,4 @@
-package com.romeao.bookstore.api.v1.models;
+package com.romeao.bookstore.api.v1.genre;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

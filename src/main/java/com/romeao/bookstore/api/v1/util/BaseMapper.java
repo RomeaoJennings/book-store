@@ -1,6 +1,5 @@
-package com.romeao.bookstore.api.v1.mappers;
+package com.romeao.bookstore.api.v1.util;
 
-import com.romeao.bookstore.api.v1.models.BaseDto;
 import com.romeao.bookstore.domain.BaseEntity;
 
 public interface BaseMapper<E extends BaseEntity, D extends BaseDto> {

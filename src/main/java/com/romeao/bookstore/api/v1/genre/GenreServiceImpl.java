@@ -1,7 +1,5 @@
-package com.romeao.bookstore.api.v1.services;
+package com.romeao.bookstore.api.v1.genre;
 
-import com.romeao.bookstore.api.v1.mappers.GenreMapper;
-import com.romeao.bookstore.api.v1.models.GenreDto;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Genre;
 import com.romeao.bookstore.repositories.GenreRepository;

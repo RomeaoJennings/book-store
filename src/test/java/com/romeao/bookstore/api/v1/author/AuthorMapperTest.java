@@ -1,6 +1,5 @@
-package com.romeao.bookstore.api.v1.mappers;
+package com.romeao.bookstore.api.v1.author;
 
-import com.romeao.bookstore.api.v1.models.AuthorDto;
 import com.romeao.bookstore.domain.Author;
 import org.junit.jupiter.api.Test;
 

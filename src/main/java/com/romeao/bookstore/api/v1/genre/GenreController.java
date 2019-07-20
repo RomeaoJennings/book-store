@@ -1,8 +1,5 @@
-package com.romeao.bookstore.api.v1.controllers;
+package com.romeao.bookstore.api.v1.genre;
 
-import com.romeao.bookstore.api.v1.models.GenreDto;
-import com.romeao.bookstore.api.v1.models.GenreDtoList;
-import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.errorhandling.FieldValidator;
 import com.romeao.bookstore.util.ResourceMeta;
