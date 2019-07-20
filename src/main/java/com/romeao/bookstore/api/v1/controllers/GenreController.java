@@ -4,6 +4,7 @@ import com.romeao.bookstore.api.v1.models.GenreDto;
 import com.romeao.bookstore.api.v1.models.GenreDtoList;
 import com.romeao.bookstore.api.v1.services.GenreService;
 import com.romeao.bookstore.api.v1.util.Endpoints;
+import com.romeao.bookstore.errorhandling.FieldValidator;
 import com.romeao.bookstore.util.ResourceMeta;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -18,28 +19,41 @@ public class GenreController {
         this.genreService = genreService;
     }
 
+    private static ResourceMeta buildPageMeta(int limit, int pageNum, Page<?> page) {
+
+        ResourceMeta meta = ResourceMeta.builder()
+                .count(page.getTotalElements())
+                .limit(limit)
+                .page(pageNum)
+                .build();
+
+        // set applicable navigation links
+        if (!page.isFirst()) {
+            meta.setPreviousUrl(Endpoints.Genre.byPageAndLimit(pageNum - 1, limit));
+        }
+        if (!page.isLast()) {
+            meta.setNextUrl(Endpoints.Genre.byPageAndLimit(pageNum + 1, limit));
+        }
+        return meta;
+    }
+
     @GetMapping
-    public GenreDtoList getAllGenres(@RequestParam(required = false) Integer limit,
-                                     @RequestParam(required = false, defaultValue = "0") Integer pageNum) {
+    public GenreDtoList getAllGenres(
+            @RequestParam(required = false, name = "limit") String limitStr,
+            @RequestParam(required = false, defaultValue = "0", name = "pageNum") String pageNumStr) {
 
-        // TODO: Add Error Checking for non-numeric input
-        // TODO: Add Error Checking for negative numeric input
+        if (limitStr != null) {
+            int limit, pageNum;
+            // Validate parameters for invalid integer values
+            FieldValidator.doPageValidation(limitStr, pageNumStr);
 
-        if (limit != null) {
+            // convert request parameters to integers
+            limit = Integer.valueOf(limitStr);
+            pageNum = Integer.valueOf(pageNumStr);
+
+            // get content and meta
             Page<GenreDto> page = genreService.findAll(pageNum, limit);
-            ResourceMeta meta = ResourceMeta.builder()
-                    .count(page.getTotalElements())
-                    .limit(limit)
-                    .page(pageNum)
-                    .build();
-
-            // set applicable navigation links
-            if (!page.isFirst()) {
-                meta.setPreviousUrl(Endpoints.Genre.byPageAndLimit(pageNum - 1, limit));
-            }
-            if (!page.isLast()) {
-                meta.setNextUrl(Endpoints.Genre.byPageAndLimit(pageNum + 1, limit));
-            }
+            ResourceMeta meta = buildPageMeta(limit, pageNum, page);
             return GenreDtoList.of(page.getContent(), meta);
         } else {
             // return results without paging information if request does not contain page info
@@ -48,19 +62,23 @@ public class GenreController {
     }
 
     @GetMapping("/{genreId}")
-    public GenreDto GetGenre(@PathVariable Integer genreId) {
-        // TODO: Add Error Checking for non-numeric input
+    public GenreDto GetGenre(@PathVariable String genreId) {
+        // Validate genreId as valid integer
+        int id = FieldValidator.validateIntField("genreId", genreId);
+
         // TODO: Add Error Checking for not found IDs
 
-        return genreService.findById(genreId);
+        return genreService.findById(id);
     }
 
     @DeleteMapping("/{genreId}")
-    public void deleteGenreById(@PathVariable Integer genreId) {
-        // TODO: Add Error Checking for non-numeric input
+    public void deleteGenreById(@PathVariable String genreId) {
+        // Validate genreId as valid integer
+        int id = FieldValidator.validateIntField("genreId", genreId);
+
         // TODO: Add Error Checking for not-found IDs
         // TODO: Add Error Handling for Data Constraint Exceptions
 
-        genreService.deleteById(genreId);
+        genreService.deleteById(id);
     }
 }
