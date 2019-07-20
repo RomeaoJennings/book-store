@@ -6,7 +6,7 @@ import java.util.Map;
 public class Endpoints {
     static final String PAGE_NUM_PARAM = "pageNumber";
     static final String PAGE_SIZE_PARAM = "pageSize";
-    private static final String BASE_API = "/api/v1";
+    static final String BASE_API = "/api/v1";
 
     static String addParams(String baseUrl, Map<String, String> params) {
         if (params.size() == 0) {
@@ -50,8 +50,8 @@ public class Endpoints {
     public static class Genre {
         public static final String URL = BASE_API + "/genres";
 
-        public static String byPageNumberAndPageSize(int pageNum, int limit) {
-            return addPageNumberAndPageSize(URL, pageNum, limit);
+        public static String byPageNumberAndPageSize(int pageNum, int pageSize) {
+            return addPageNumberAndPageSize(URL, pageNum, pageSize);
         }
 
         public static String byGenreId(int genreId) {

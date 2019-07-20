@@ -1,9 +1,12 @@
 package com.romeao.bookstore.api.v1.genre;
 
 import com.romeao.bookstore.api.v1.util.Endpoints;
+import com.romeao.bookstore.api.v1.util.ErrorMessages;
+import com.romeao.bookstore.errorhandling.ApiException;
 import com.romeao.bookstore.errorhandling.FieldValidator;
 import com.romeao.bookstore.util.ResourceMeta;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,13 +45,14 @@ public class GenreController {
     }
 
     @GetMapping("/{genreId}")
-    public GenreDto GetGenre(@PathVariable String genreId) {
+    public GenreDto GetGenreById(@PathVariable String genreId) {
         // Validate genreId as valid integer
         int intGenreId = FieldValidator.validateIntField("genreId", genreId);
 
-        // TODO: Add Error Checking for not found IDs
-
-        return genreService.findById(intGenreId);
+        GenreDto result = genreService.findById(intGenreId);
+        if (result == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, ErrorMessages.RESOURCE_NOT_FOUND);
+        } else { return result; }
     }
 
     @DeleteMapping("/{genreId}")
@@ -56,7 +60,10 @@ public class GenreController {
         // Validate genreId as valid integer
         int intGenreId = FieldValidator.validateIntField("genreId", genreId);
 
-        // TODO: Add Error Checking for not-found IDs
+        if (genreService.findById(intGenreId) == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, ErrorMessages.RESOURCE_NOT_FOUND);
+        }
+
         // TODO: Add Error Handling for Data Constraint Exceptions
 
         genreService.deleteById(intGenreId);

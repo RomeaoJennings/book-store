@@ -22,56 +22,45 @@ public class FieldValidator {
         }
     }
 
-    private static List<ApiValidationError> validateIntFields(Map<String, String> fields) {
-        List<ApiValidationError> result = new ArrayList<>();
+    private static void validateIntFields(Map<String, String> fields) {
+        List<ApiValidationError> errors = new ArrayList<>();
 
         fields.forEach((fieldName, fieldVal) -> {
             if (!isValidInt(fieldVal)) {
-                result.add(new ApiValidationError(fieldName,
+                errors.add(new ApiValidationError(fieldName,
                         ErrorMessages.INVALID_INTEGER, fieldVal));
             }
         });
-        return result;
+        if (!errors.isEmpty()) {
+            ApiError error = new ApiError(HttpStatus.BAD_REQUEST,
+                    ErrorMessages.MALFORMED_PARAMETER);
+            error.getSubErrors().addAll(errors);
+            throw new ApiException(error);
+        }
     }
 
     public static int validateIntField(String fieldName, String fieldValue) {
         Map<String, String> fields = new HashMap<>();
         fields.put(fieldName, fieldValue);
-        List<ApiValidationError> result = validateIntFields(fields);
-        if (!result.isEmpty()) {
-            ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_INTEGER);
-            error.getSubErrors().addAll(result);
-            throw new ApiException(error);
-        }
+        validateIntFields(fields);
         return Integer.parseInt(fieldValue);
     }
 
-    private static List<ApiValidationError> validatePageParameters(String pageSize,
-                                                                   String pageNumber) {
+    public static void doPageValidation(String pageSize, String pageNumber) {
         Map<String, String> fields = new HashMap<>();
         fields.put(PAGE_SIZE, pageSize);
         fields.put(PAGE_NUM, pageNumber);
-        List<ApiValidationError> result = validateIntFields(fields);
 
-        // Confirm that pageSize is at least 1
-        if (isValidInt(pageSize)) {
-            int intLimit = Integer.parseInt(pageSize);
-            if (intLimit < 1) {
-                result.add(new ApiValidationError(PAGE_SIZE, ErrorMessages.PARAM_MUST_BE_POSITIVE
-                        , pageSize));
-            }
-        }
-        return result;
-    }
+        // validate values for integers that cannot be parsed
+        validateIntFields(fields);
 
-    public static void doPageValidation(String pageSize, String pageNumber) {
-        List<ApiValidationError> errors =
-                validatePageParameters(pageSize, pageNumber);
-        if (!errors.isEmpty()) {
-            ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST,
+        // Confirm that pageSize is positive
+        if (Integer.parseInt(pageSize) < 1) {
+            ApiError error = new ApiError(HttpStatus.BAD_REQUEST,
                     ErrorMessages.INVALID_REQUEST_PARAMETERS);
-            apiError.getSubErrors().addAll(errors);
-            throw new ApiException(apiError);
+            error.getSubErrors().add(new ApiValidationError(PAGE_SIZE,
+                    ErrorMessages.PARAM_MUST_BE_POSITIVE, pageSize));
+            throw new ApiException(error);
         }
     }
 }

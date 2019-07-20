@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
@@ -32,6 +33,10 @@ class GenreControllerTest {
     private static final String NAME_FIRST = "Genre First";
     private static final String NAME_SECOND = "Genre Second";
     private static final String NAME_THIRD = "Genre Third";
+    private static final String MALFORMED_INT = "abc";
+    private static final Integer NEGATIVE_PAGE_SIZE = -1;
+    private static final String GENRE_ID_FIELD = "genreId";
+    private static final String PAGE_SIZE_FIELD = "pageSize";
     private static MockMvc mockMvc;
     private GenreDto GENRE_FIRST = new GenreDto();
     private GenreDto GENRE_SECOND = new GenreDto();
@@ -118,23 +123,42 @@ class GenreControllerTest {
     }
 
     @Test
-    void getAllGenres_withBadPageNumberAndPageSize() throws Exception {
-        mockMvc.perform(get("/api/v1/genres?pageSize=-1&pageNumber=def"))
+    void getAllGenres_withMalformedPageNumber() throws Exception {
+        // when
+        ResultActions request = mockMvc.perform(
+                get(Endpoints.Genre.URL + "?pageSize=1&pageNumber=" + MALFORMED_INT));
+
+        // then
+        validateMalformedIntJson(request, "pageNumber", MALFORMED_INT);
+        verifyZeroInteractions(service);
+    }
+
+    @Test
+    void getAllGenres_withMalformedPageSize() throws Exception {
+        // when
+        ResultActions request = mockMvc.perform(
+                get(Endpoints.Genre.URL + "?pageNumber=1&pageSize=" + MALFORMED_INT));
+
+        // then
+        validateMalformedIntJson(request, PAGE_SIZE_FIELD, MALFORMED_INT);
+        verifyZeroInteractions(service);
+    }
+
+    @Test
+    void getAllGenres_withNonPositivePageSize() throws Exception {
+        mockMvc.perform(get(Endpoints.Genre.byPageNumberAndPageSize(ID_FIRST, NEGATIVE_PAGE_SIZE)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message",
                         equalTo(ErrorMessages.INVALID_REQUEST_PARAMETERS)))
                 .andExpect(jsonPath("$.status", equalTo(HttpStatus.BAD_REQUEST.name())))
                 .andExpect(jsonPath("$.statusCode",
                         equalTo(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.subErrors", hasSize(2)))
-                .andExpect(jsonPath("$.subErrors[*].field",
-                        containsInAnyOrder("pageSize", "pageNumber")))
-                .andExpect(jsonPath("$.subErrors[*].rejectedValue",
-                        containsInAnyOrder("-1", "def")))
-                .andExpect(jsonPath("$.subErrors[*].message",
-                        containsInAnyOrder(
-                                ErrorMessages.PARAM_MUST_BE_POSITIVE,
-                                ErrorMessages.INVALID_INTEGER)));
+                .andExpect(jsonPath("$.subErrors", hasSize(1)))
+                .andExpect(jsonPath("$.subErrors[0].field", equalTo(PAGE_SIZE_FIELD)))
+                .andExpect(jsonPath("$.subErrors[0].rejectedValue",
+                        equalTo(String.valueOf(NEGATIVE_PAGE_SIZE))))
+                .andExpect(jsonPath("$.subErrors[0].message",
+                        equalTo(ErrorMessages.PARAM_MUST_BE_POSITIVE)));
 
         verifyZeroInteractions(service);
     }
@@ -159,11 +183,46 @@ class GenreControllerTest {
     }
 
     @Test
+    void getGenreById_withMalformedId() throws Exception {
+        ResultActions request = mockMvc.perform(
+                get(Endpoints.Genre.URL + "/" + MALFORMED_INT));
+        validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
+    }
+
+    @Test
     void deleteGenreById() throws Exception {
+        // given
+        when(service.findById(ID_FIRST)).thenReturn(GENRE_FIRST);
+
         // when
         mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
                 .andExpect(status().isOk());
         verify(service, times(1)).deleteById(ID_FIRST);
+        verify(service, times(1)).findById(ID_FIRST);
         verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void deleteGenreById_withMalformedId() throws Exception {
+        ResultActions request = mockMvc.perform(
+                delete(Endpoints.Genre.URL + "/" + MALFORMED_INT));
+        validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
+    }
+
+    private void validateMalformedIntJson(ResultActions request,
+                                          String field,
+                                          String rejectedValue) throws Exception {
+        request.
+                andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message",
+                        equalTo(ErrorMessages.MALFORMED_PARAMETER)))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.BAD_REQUEST.name())))
+                .andExpect(jsonPath("$.statusCode", equalTo(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.subErrors", hasSize(1)))
+                .andExpect(jsonPath("$.subErrors[0].field", equalTo(field)))
+                .andExpect(jsonPath("$.subErrors[0].rejectedValue",
+                        equalTo(rejectedValue)))
+                .andExpect(jsonPath("$.subErrors[0].message",
+                        equalTo(ErrorMessages.INVALID_INTEGER)));
     }
 }
