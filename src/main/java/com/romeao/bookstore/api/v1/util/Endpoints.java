@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Endpoints {
-    static final String PAGE_NUM_PARAM = "pageNum";
-    static final String LIMIT_PARAM = "limit";
+    static final String PAGE_NUM_PARAM = "pageNumber";
+    static final String PAGE_SIZE_PARAM = "pageSize";
     private static final String BASE_API = "/api/v1";
 
     static String addParams(String baseUrl, Map<String, String> params) {
@@ -39,10 +39,10 @@ public class Endpoints {
         return builder.toString();
     }
 
-    static String addPageNumAndLimit(String baseUrl, int pageNum, int limit) {
+    static String addPageNumberAndPageSize(String baseUrl, int pageNum, int limit) {
         Map<String, String> params = new HashMap<>(2);
         params.put(PAGE_NUM_PARAM, String.valueOf(pageNum));
-        params.put(LIMIT_PARAM, String.valueOf(limit));
+        params.put(PAGE_SIZE_PARAM, String.valueOf(limit));
         return addParams(baseUrl, params);
     }
 
@@ -50,8 +50,8 @@ public class Endpoints {
     public static class Genre {
         public static final String URL = BASE_API + "/genres";
 
-        public static String byPageAndLimit(int pageNum, int limit) {
-            return addPageNumAndLimit(URL, pageNum, limit);
+        public static String byPageNumberAndPageSize(int pageNum, int limit) {
+            return addPageNumberAndPageSize(URL, pageNum, limit);
         }
 
         public static String byGenreId(int genreId) {
@@ -63,8 +63,8 @@ public class Endpoints {
     public static class Author {
         public static final String URL = BASE_API + "/authors";
 
-        public static String byPageAndLimit(int pageNum, int limit) {
-            return addPageNumAndLimit(URL, pageNum, limit);
+        public static String byPageNumberAndPageSize(int pageNum, int limit) {
+            return addPageNumberAndPageSize(URL, pageNum, limit);
         }
 
         public static String byAuthorId(int authorId) {

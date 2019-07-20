@@ -72,32 +72,41 @@ class AuthorControllerTest {
     }
 
     @Test
-    void getAllAuthors_withPageAndLimit() throws Exception {
+    void getAllAuthors_withPageNumberAndPageSize() throws Exception {
         // given
-        int pageNum = 1;
-        int pageLimit = 1;
-        Long count = 3L;
-        when(page.getTotalElements()).thenReturn(count);
+        int pageNumber = 1;
+        int previousPage = pageNumber - 1;
+        int nextPage = pageNumber + 1;
+        int pageSize = 1;
+        int totalPages = 3;
+        Long totalElements = 3L;
+
+        when(page.getTotalElements()).thenReturn(totalElements);
         when(page.getContent()).thenReturn(List.of(authorTwo));
+        when(page.getTotalPages()).thenReturn(totalPages);
+        when(page.getSize()).thenReturn(pageSize);
+        when(page.getNumber()).thenReturn(pageNumber);
         when(page.isFirst()).thenReturn(false);
         when(page.isLast()).thenReturn(false);
-        when(service.findAll(pageNum, pageLimit)).thenReturn(page);
+        when(service.findAll(pageNumber, pageSize)).thenReturn(page);
 
         // when
-        mockMvc.perform(get(Endpoints.Author.byPageAndLimit(pageNum, pageLimit)))
+        mockMvc.perform(get(Endpoints.Author.byPageNumberAndPageSize(pageNumber, pageSize)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.meta.count", equalTo(count.intValue())))
-                .andExpect(jsonPath("$.meta.limit", equalTo(pageLimit)))
-                .andExpect(jsonPath("$.meta.pageNum", equalTo(pageNum)))
+                .andExpect(jsonPath("$.meta.totalElements",
+                        equalTo(totalElements.intValue())))
+                .andExpect(jsonPath("$.meta.totalPages", equalTo(totalPages)))
+                .andExpect(jsonPath("$.meta.pageSize", equalTo(pageSize)))
+                .andExpect(jsonPath("$.meta.pageNumber", equalTo(pageNumber)))
                 .andExpect(jsonPath("$.meta.previousUrl",
-                        equalTo(Endpoints.Author.byPageAndLimit(pageNum - 1, pageLimit))))
+                        equalTo(Endpoints.Author.byPageNumberAndPageSize(previousPage, pageSize))))
                 .andExpect(jsonPath("$.meta.nextUrl",
-                        equalTo(Endpoints.Author.byPageAndLimit(pageNum + 1, pageLimit))))
+                        equalTo(Endpoints.Author.byPageNumberAndPageSize(nextPage, pageSize))))
                 .andExpect(jsonPath("$.authors", hasSize(1)))
                 .andExpect(jsonPath("$.authors[0].firstName", equalTo(FIRST_TWO)))
                 .andExpect(jsonPath("$.authors[0].lastName", equalTo(LAST_TWO)));
 
-        verify(service, times(1)).findAll(pageNum, pageLimit);
+        verify(service, times(1)).findAll(pageNumber, pageSize);
         verifyNoMoreInteractions(service);
     }
 

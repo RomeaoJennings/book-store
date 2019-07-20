@@ -1,19 +1,22 @@
 package com.romeao.bookstore.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.io.Serializable;
 
+@JsonPropertyOrder({"pageNumber", "pageSize", "totalPages",
+        "totalElements", "previousUrl", "nextUrl"})
 public class ResourceMeta implements Serializable {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long count;
+    private Long totalElements;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer limit;
+    private Integer pageSize;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer pageNum;
+    private Integer pageNumber;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String previousUrl;
@@ -21,32 +24,35 @@ public class ResourceMeta implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String nextUrl;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer totalPages;
+
     public static ResourceMetaBuilder builder() {
         return new ResourceMetaBuilder();
     }
 
-    public Long getCount() {
-        return count;
+    public Long getTotalElements() {
+        return totalElements;
     }
 
-    void setCount(Long count) {
-        this.count = count;
+    void setTotalElements(Long totalElements) {
+        this.totalElements = totalElements;
     }
 
-    public Integer getLimit() {
-        return limit;
+    public Integer getPageSize() {
+        return pageSize;
     }
 
-    void setLimit(Integer limit) {
-        this.limit = limit;
+    void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 
-    public Integer getPageNum() {
-        return pageNum;
+    public Integer getPageNumber() {
+        return pageNumber;
     }
 
-    void setPageNum(Integer page) {
-        this.pageNum = page;
+    void setPageNumber(Integer page) {
+        this.pageNumber = page;
     }
 
     public String getPreviousUrl() {
@@ -63,6 +69,14 @@ public class ResourceMeta implements Serializable {
 
     public void setNextUrl(String nextUrl) {
         this.nextUrl = nextUrl;
+    }
+
+    public Integer getTotalPages() {
+        return totalPages;
+    }
+
+    public void setTotalPages(Integer totalPages) {
+        this.totalPages = totalPages;
     }
 }
 

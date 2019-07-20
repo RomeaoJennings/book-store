@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class FieldValidator {
 
-    private static final String LIMIT = "limit";
-    private static final String PAGE_NUM = "pageNum";
+    private static final String PAGE_SIZE = "pageSize";
+    private static final String PAGE_NUM = "pageNumber";
 
     private static boolean isValidInt(String input) {
         try {
@@ -34,38 +34,39 @@ public class FieldValidator {
         return result;
     }
 
-    public static int validateIntField(String fieldName, String fieldVal) {
+    public static int validateIntField(String fieldName, String fieldValue) {
         Map<String, String> fields = new HashMap<>();
-        fields.put(fieldName, fieldVal);
+        fields.put(fieldName, fieldValue);
         List<ApiValidationError> result = validateIntFields(fields);
         if (!result.isEmpty()) {
             ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_INTEGER);
             error.getSubErrors().addAll(result);
             throw new ApiException(error);
         }
-        return Integer.parseInt(fieldVal);
+        return Integer.parseInt(fieldValue);
     }
 
-    private static List<ApiValidationError> validatePageParameters(String limit, String pageNum) {
+    private static List<ApiValidationError> validatePageParameters(String pageSize,
+                                                                   String pageNumber) {
         Map<String, String> fields = new HashMap<>();
-        fields.put(LIMIT, limit);
-        fields.put(PAGE_NUM, pageNum);
+        fields.put(PAGE_SIZE, pageSize);
+        fields.put(PAGE_NUM, pageNumber);
         List<ApiValidationError> result = validateIntFields(fields);
 
-        // Confirm that limit is at least 1
-        if (isValidInt(limit)) {
-            int intLimit = Integer.parseInt(limit);
+        // Confirm that pageSize is at least 1
+        if (isValidInt(pageSize)) {
+            int intLimit = Integer.parseInt(pageSize);
             if (intLimit < 1) {
-                result.add(new ApiValidationError(LIMIT, ErrorMessages.BAD_LIMIT_VALUE, limit));
+                result.add(new ApiValidationError(PAGE_SIZE, ErrorMessages.PARAM_MUST_BE_POSITIVE
+                        , pageSize));
             }
         }
-
         return result;
     }
 
-    public static void doPageValidation(String limit, String pageNum) {
+    public static void doPageValidation(String pageSize, String pageNumber) {
         List<ApiValidationError> errors =
-                validatePageParameters(limit, pageNum);
+                validatePageParameters(pageSize, pageNumber);
         if (!errors.isEmpty()) {
             ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST,
                     ErrorMessages.INVALID_REQUEST_PARAMETERS);

@@ -14,15 +14,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class EndpointsTest {
     private static final String BASE_URL = "/baseUrl";
-    private static final String PARAM_ONE_KEY = "limit";
+    private static final String PARAM_ONE_KEY = "pageSize";
     private static final String PARAM_ONE_VAL = "5";
-    private static final String PARAM_TWO_KEY = "pageNum";
+    private static final String PARAM_TWO_KEY = "pageNumber";
     private static final String PARAM_TWO_VAL = "3";
 
-    private static final int PAGE_NUM = 3;
-    private static final int LIMIT = 5;
+    private static final int PAGE_NUMBER = 3;
+    private static final int PAGE_SIZE = 5;
 
-    private static Map<String, String> params;
+    private Map<String, String> params;
 
     @BeforeEach
     void setUp() {
@@ -36,10 +36,11 @@ class EndpointsTest {
         // when
         String url = Endpoints.addParams(BASE_URL, params);
 
+        // then
         assertNotNull(url);
         assertThat(url, anyOf(
-                is("/baseUrl?limit=5&pageNum=3"),
-                is("/baseUrl?pageNum=3&limit=5")));
+                is("/baseUrl?pageSize=5&pageNumber=3"),
+                is("/baseUrl?pageNumber=3&pageSize=5")));
     }
 
     @Test
@@ -77,36 +78,19 @@ class EndpointsTest {
     }
 
     @Test
-    void testAddPageNumAndLimit() {
+    void testAddPageNumberAndPageSize() {
         // when
-        String url = Endpoints.addPageNumAndLimit(BASE_URL, PAGE_NUM, LIMIT);
-        String limitFirst = new StringBuilder(BASE_URL)
-                .append("?")
-                .append(Endpoints.LIMIT_PARAM)
-                .append("=")
-                .append(LIMIT)
-                .append("&")
-                .append(Endpoints.PAGE_NUM_PARAM)
-                .append("=")
-                .append(PAGE_NUM)
-                .toString();
+        String url = Endpoints.addPageNumberAndPageSize(BASE_URL, PAGE_NUMBER, PAGE_SIZE);
+        String pageSizeFirst = BASE_URL + "?" + Endpoints.PAGE_SIZE_PARAM + "=" + PAGE_SIZE +
+                "&" + Endpoints.PAGE_NUM_PARAM + "=" + PAGE_NUMBER;
 
-        String pageNumFirst = new StringBuilder(BASE_URL)
-                .append("?")
-                .append(Endpoints.PAGE_NUM_PARAM)
-                .append("=")
-                .append(PAGE_NUM)
-                .append("&")
-                .append(Endpoints.LIMIT_PARAM)
-                .append("=")
-                .append(LIMIT)
-                .toString();
-
+        String pageNumberFirst = BASE_URL + "?" + Endpoints.PAGE_NUM_PARAM + "=" + PAGE_NUMBER +
+                "&" + Endpoints.PAGE_SIZE_PARAM + "=" + PAGE_SIZE;
 
         // then
         assertNotNull(url);
         assertThat(url, anyOf(
-                is(limitFirst),
-                is(pageNumFirst)));
+                is(pageSizeFirst),
+                is(pageNumberFirst)));
     }
 }

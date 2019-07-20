@@ -80,37 +80,46 @@ class GenreControllerTest {
     }
 
     @Test
-    void getAllGenres_withPageAndLimit() throws Exception {
+    void getAllGenres_withPageNumberAndPageSize() throws Exception {
         // given
-        int pageNum = 1;
-        int pageLimit = 1;
-        Long count = 3L;
-        when(page.getTotalElements()).thenReturn(count);
+        int pageNumber = 1;
+        int previousPage = pageNumber - 1;
+        int nextPage = pageNumber + 1;
+        int pageSize = 1;
+        int totalPages = 3;
+        Long totalElements = 3L;
+
+        when(page.getTotalElements()).thenReturn(totalElements);
         when(page.getContent()).thenReturn(List.of(GENRE_SECOND));
+        when(page.getTotalPages()).thenReturn(totalPages);
+        when(page.getSize()).thenReturn(pageSize);
+        when(page.getNumber()).thenReturn(pageNumber);
         when(page.isFirst()).thenReturn(false);
         when(page.isLast()).thenReturn(false);
-        when(service.findAll(pageNum, pageLimit)).thenReturn(page);
+        when(service.findAll(pageNumber, pageSize)).thenReturn(page);
 
         // when
-        mockMvc.perform(get(Endpoints.Genre.byPageAndLimit(pageNum, pageLimit)))
+        mockMvc.perform(get(Endpoints.Genre.byPageNumberAndPageSize(pageNumber, pageSize)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.meta.count", equalTo(count.intValue())))
-                .andExpect(jsonPath("$.meta.limit", equalTo(pageLimit)))
-                .andExpect(jsonPath("$.meta.pageNum", equalTo(pageNum)))
+                .andExpect(jsonPath("$.meta.totalElements",
+                        equalTo(totalElements.intValue())))
+                .andExpect(jsonPath("$.meta.pageSize", equalTo(pageSize)))
+                .andExpect(jsonPath("$.meta.pageNumber", equalTo(pageNumber)))
+                .andExpect(jsonPath("$.meta.totalPages", equalTo(totalPages)))
                 .andExpect(jsonPath("$.meta.previousUrl",
-                        equalTo(Endpoints.Genre.byPageAndLimit(pageNum - 1, pageLimit))))
+                        equalTo(Endpoints.Genre.byPageNumberAndPageSize(previousPage, pageSize))))
                 .andExpect(jsonPath("$.meta.nextUrl",
-                        equalTo(Endpoints.Genre.byPageAndLimit(pageNum + 1, pageLimit))))
+                        equalTo(Endpoints.Genre.byPageNumberAndPageSize(nextPage, pageSize))))
                 .andExpect(jsonPath("$.genres", hasSize(1)))
                 .andExpect(jsonPath("$.genres[0].name", equalTo(NAME_SECOND)));
 
-        verify(service, times(1)).findAll(pageNum, pageLimit);
+        verify(service, times(1)).findAll(pageNumber, pageSize);
         verifyNoMoreInteractions(service);
     }
 
     @Test
-    void getAllGenres_withBadPageAndLimit() throws Exception {
-        mockMvc.perform(get("/api/v1/genres?limit=-1&pageNum=def"))
+    void getAllGenres_withBadPageNumberAndPageSize() throws Exception {
+        mockMvc.perform(get("/api/v1/genres?pageSize=-1&pageNumber=def"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message",
                         equalTo(ErrorMessages.INVALID_REQUEST_PARAMETERS)))
@@ -119,12 +128,12 @@ class GenreControllerTest {
                         equalTo(HttpStatus.BAD_REQUEST.value())))
                 .andExpect(jsonPath("$.subErrors", hasSize(2)))
                 .andExpect(jsonPath("$.subErrors[*].field",
-                        containsInAnyOrder("limit", "pageNum")))
+                        containsInAnyOrder("pageSize", "pageNumber")))
                 .andExpect(jsonPath("$.subErrors[*].rejectedValue",
                         containsInAnyOrder("-1", "def")))
                 .andExpect(jsonPath("$.subErrors[*].message",
                         containsInAnyOrder(
-                                ErrorMessages.BAD_LIMIT_VALUE,
+                                ErrorMessages.PARAM_MUST_BE_POSITIVE,
                                 ErrorMessages.INVALID_INTEGER)));
 
         verifyZeroInteractions(service);
