@@ -3,9 +3,13 @@ package com.romeao.bookstore.api.v1.genre;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.api.v1.util.ErrorMessages;
 import com.romeao.bookstore.api.v1.util.TestUtils;
+import com.romeao.bookstore.errorhandling.ApiError;
+import com.romeao.bookstore.errorhandling.ApiException;
 import com.romeao.bookstore.errorhandling.ApiExceptionHandler;
+import com.romeao.bookstore.errorhandling.ApiValidationError;
 import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -22,9 +27,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +43,7 @@ class GenreControllerTest {
     private static final Integer NEGATIVE_PAGE_SIZE = -1;
     private static final String GENRE_ID_FIELD = "genreId";
     private static final String PAGE_SIZE_FIELD = "pageSize";
+    private static final Integer NOT_FOUND_ID = 4;
     private static MockMvc mockMvc;
     private GenreDto GENRE_FIRST = new GenreDto();
     private GenreDto GENRE_SECOND = new GenreDto();
@@ -185,6 +191,17 @@ class GenreControllerTest {
     }
 
     @Test
+    void getGenreById_notFound() throws Exception {
+        // given
+        when(service.findById(NOT_FOUND_ID)).thenReturn(null);
+
+        mockMvc.perform(get(Endpoints.Genre.byGenreId(NOT_FOUND_ID)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", equalTo(ErrorMessages.RESOURCE_NOT_FOUND)))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.NOT_FOUND.name())));
+    }
+
+    @Test
     void deleteGenreById() throws Exception {
         // when
         mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
@@ -213,6 +230,58 @@ class GenreControllerTest {
                 .andExpect(jsonPath("$.message", equalTo(ErrorMessages.CANNOT_DELETE_RESOURCE)))
                 .andExpect(jsonPath("$.debugMessage", equalTo(expected.toString())));
         verify(service, times(1)).deleteById(ID_FIRST);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void addGenre() throws Exception {
+        // given
+        when(service.save(any())).thenReturn(GENRE_FIRST);
+        JSONObject request = new JSONObject();
+        request.put("name", NAME_FIRST);
+
+        // when
+        mockMvc.perform(post(Endpoints.Genre.URL)
+                .content(request.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", equalTo(NAME_FIRST)));
+
+        verify(service, times(1)).save(any());
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void addGenre_alreadyExists() throws Exception {
+        // given
+
+        // set up mocked error from service
+        ApiValidationError validationErr = new ApiValidationError("name",
+                ErrorMessages.RESOURCE_EXISTS, NAME_FIRST);
+        ApiError apiError = new ApiError(HttpStatus.UNPROCESSABLE_ENTITY,
+                ErrorMessages.RESOURCE_EXISTS);
+        apiError.getSubErrors().add(validationErr);
+        when(service.save(any())).thenThrow(new ApiException(apiError));
+
+        // build JSON request
+        JSONObject request = new JSONObject();
+        request.put("name", NAME_FIRST);
+
+        // when
+        mockMvc.perform(post(Endpoints.Genre.URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request.toString())
+        )
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message",
+                        equalTo(ErrorMessages.RESOURCE_EXISTS)))
+                .andExpect(jsonPath("$.status",
+                        equalTo(HttpStatus.UNPROCESSABLE_ENTITY.name())))
+                .andExpect(jsonPath("$.subErrors[0].rejectedValue",
+                        equalTo(NAME_FIRST)))
+                .andExpect(jsonPath("$.subErrors[0].field", equalTo("name")));
+        verify(service, times(1)).save(any());
         verifyNoMoreInteractions(service);
     }
 }

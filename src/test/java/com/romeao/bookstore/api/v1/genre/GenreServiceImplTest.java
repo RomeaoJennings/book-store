@@ -1,7 +1,11 @@
 package com.romeao.bookstore.api.v1.genre;
 
 import com.romeao.bookstore.api.v1.util.Endpoints;
+import com.romeao.bookstore.api.v1.util.ErrorMessages;
 import com.romeao.bookstore.domain.Genre;
+import com.romeao.bookstore.errorhandling.ApiError;
+import com.romeao.bookstore.errorhandling.ApiException;
+import com.romeao.bookstore.errorhandling.ApiValidationError;
 import com.romeao.bookstore.repositories.GenreRepository;
 import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -178,6 +183,20 @@ class GenreServiceImplTest {
     }
 
     @Test
+    void testDeleteById_notFound() {
+        // given
+        when(repository.findById(NOT_FOUND_ID)).thenReturn(Optional.empty());
+
+        // when
+        ApiException caughtException = assertThrows(ApiException.class,
+                () -> service.deleteById(NOT_FOUND_ID));
+
+        // then
+        assertEquals(caughtException.getError().getStatus(), HttpStatus.NOT_FOUND);
+        assertEquals(caughtException.getError().getMessage(), ErrorMessages.RESOURCE_NOT_FOUND);
+    }
+
+    @Test
     void testSave() {
         // given
         when(repository.findByNameIgnoreCase(NAME_ONE)).thenReturn(Optional.empty());
@@ -196,6 +215,31 @@ class GenreServiceImplTest {
 
         verify(repository, times(1)).findByNameIgnoreCase(NAME_ONE);
         verify(repository, times(1)).save(any());
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void testSave_genreAlreadyExists() {
+        // given
+        when(repository.findByNameIgnoreCase(NAME_ONE)).thenReturn(Optional.of(genreOne));
+        GenreDto dtoOne = new GenreDto();
+        dtoOne.setName(NAME_ONE);
+
+        // when
+        ApiException exception = assertThrows(ApiException.class,
+                () -> service.save(dtoOne));
+
+        // then
+        ApiError error = exception.getError();
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, error.getStatus());
+        assertEquals(ErrorMessages.RESOURCE_EXISTS, error.getMessage());
+        assertEquals(1, error.getSubErrors().size());
+        ApiValidationError subError = (ApiValidationError) error.getSubErrors().get(0);
+        assertEquals(ErrorMessages.RESOURCE_EXISTS, subError.getMessage());
+        assertEquals(GenreServiceImpl.NAME_FIELD, subError.getField());
+        assertEquals(NAME_ONE, subError.getRejectedValue());
+
+        verify(repository, times(1)).findByNameIgnoreCase(NAME_ONE);
         verifyNoMoreInteractions(repository);
     }
 }

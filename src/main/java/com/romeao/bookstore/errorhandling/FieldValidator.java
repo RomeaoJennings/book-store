@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FieldValidator {
+public abstract class FieldValidator {
 
     private static final String PAGE_SIZE = "pageSize";
     private static final String PAGE_NUM = "pageNumber";
