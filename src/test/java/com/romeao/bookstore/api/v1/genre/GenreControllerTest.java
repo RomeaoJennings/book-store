@@ -227,7 +227,8 @@ class GenreControllerTest {
         // when
         mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message", equalTo(ErrorMessages.CANNOT_DELETE_RESOURCE)))
+                .andExpect(jsonPath("$.message",
+                        equalTo(ErrorMessages.CANNOT_DELETE_RESOURCE)))
                 .andExpect(jsonPath("$.debugMessage", equalTo(expected.toString())));
         verify(service, times(1)).deleteById(ID_FIRST);
         verifyNoMoreInteractions(service);
@@ -283,5 +284,21 @@ class GenreControllerTest {
                 .andExpect(jsonPath("$.subErrors[0].field", equalTo("name")));
         verify(service, times(1)).save(any());
         verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void addGenre_withInvalidRequest() throws Exception {
+        // given
+        String badRequest = "{ \"genre\":\"Action\" }";
+
+        // when
+        mockMvc.perform(post(Endpoints.Genre.URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(badRequest)
+        )
+                .andExpect(status().isBadRequest());
+        //TODO: Add JSON Testing After Test Util Refactor
+
+        verifyZeroInteractions(service);
     }
 }
