@@ -12,4 +12,8 @@ public interface GenreService {
     void deleteById(int genreId);
 
     GenreDto findById(int genreId);
+
+    GenreDto findByName(String genreName);
+
+    GenreDto save(GenreDto dto);
 }

@@ -3,6 +3,7 @@ package com.romeao.bookstore.api.v1.genre;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Genre;
 import com.romeao.bookstore.repositories.GenreRepository;
+import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,14 @@ class GenreServiceImplTest {
 
     @InjectMocks
     private GenreServiceImpl service;
+
+    private static void assertHasSelfLink(GenreDto dto, int genreId) {
+        assertEquals(1, dto.getLinks().size());
+        Link link = dto.getLinks().get(0);
+
+        assertEquals("self", link.getName());
+        assertEquals(Endpoints.Genre.byGenreId(genreId), link.getUrl());
+    }
 
     @BeforeEach
     void setUp() {
@@ -85,11 +94,13 @@ class GenreServiceImplTest {
         // then
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        assertEquals(NAME_ONE, result.getContent().get(0).getName());
-        assertEquals(1, result.getContent().get(0).getLinks().size());
-        assertEquals(LinkNames.SELF, result.getContent().get(0).getLinks().get(0).getName());
-        assertEquals(Endpoints.Genre.byGenreId(ID_ONE),
-                result.getContent().get(0).getLinks().get(0).getUrl());
+        GenreDto dto = result.getContent().get(0);
+
+        assertEquals(NAME_ONE, dto.getName());
+        assertHasSelfLink(dto, ID_ONE);
+
+        verify(repository, times(1)).findAll(any(Pageable.class));
+        verifyNoMoreInteractions(repository);
     }
 
     @Test
@@ -104,8 +115,7 @@ class GenreServiceImplTest {
         assertNotNull(dto);
         assertEquals(NAME_ONE, dto.getName());
         assertEquals(1, dto.getLinks().size());
-        assertEquals(LinkNames.SELF, dto.getLinks().get(0).getName());
-        assertEquals(Endpoints.Genre.byGenreId(ID_ONE), dto.getLinks().get(0).getUrl());
+        assertHasSelfLink(dto, ID_ONE);
     }
 
     @Test
@@ -123,12 +133,69 @@ class GenreServiceImplTest {
     }
 
     @Test
+    void testFindByName() {
+        // given
+        when(repository.findByNameIgnoreCase(NAME_ONE)).thenReturn(Optional.of(genreOne));
+
+        // when
+        GenreDto dto = service.findByName(NAME_ONE);
+
+        // then
+        assertNotNull(dto);
+        assertEquals(NAME_ONE, dto.getName());
+        assertHasSelfLink(dto, ID_ONE);
+
+        verify(repository, times(1)).findByNameIgnoreCase(NAME_ONE);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void testFindByName_notFound() {
+        // given
+        when(repository.findByNameIgnoreCase(NAME_ONE)).thenReturn(Optional.empty());
+
+        // when
+        GenreDto dto = service.findByName(NAME_ONE);
+
+        // then
+        assertNull(dto);
+        verify(repository, times(1)).findByNameIgnoreCase(NAME_ONE);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
     void testDeleteById() {
+        // given
+        when(repository.findById(ID_ONE)).thenReturn(Optional.of(genreOne));
+
         // when
         service.deleteById(ID_ONE);
 
         // then
+        verify(repository, times(1)).findById(ID_ONE);
         verify(repository, times(1)).deleteById(ID_ONE);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void testSave() {
+        // given
+        when(repository.findByNameIgnoreCase(NAME_ONE)).thenReturn(Optional.empty());
+        when(repository.save(any())).thenReturn(genreOne);
+
+        GenreDto dtoOne = new GenreDto();
+        dtoOne.setName(NAME_ONE);
+
+        // when
+        GenreDto dto = service.save(dtoOne);
+
+        // then
+        assertNotNull(dto);
+        assertEquals(NAME_ONE, dto.getName());
+        assertHasSelfLink(dto, ID_ONE);
+
+        verify(repository, times(1)).findByNameIgnoreCase(NAME_ONE);
+        verify(repository, times(1)).save(any());
         verifyNoMoreInteractions(repository);
     }
 }

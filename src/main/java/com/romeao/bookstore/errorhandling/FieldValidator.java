@@ -2,6 +2,7 @@ package com.romeao.bookstore.errorhandling;
 
 import com.romeao.bookstore.api.v1.util.ErrorMessages;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +61,21 @@ public class FieldValidator {
                     ErrorMessages.INVALID_REQUEST_PARAMETERS);
             error.getSubErrors().add(new ApiValidationError(PAGE_SIZE,
                     ErrorMessages.PARAM_MUST_BE_POSITIVE, pageSize));
+            throw new ApiException(error);
+        }
+    }
+
+    public static void doFieldValidation(BindingResult validation) {
+        if (validation.hasFieldErrors()) {
+            List<ApiValidationError> fieldErrors = new ArrayList<>();
+            validation.getFieldErrors().forEach(fieldError ->
+                    fieldErrors.add(new ApiValidationError(
+                            fieldError.getField(),
+                            fieldError.getDefaultMessage(),
+                            fieldError.getRejectedValue())));
+            ApiError error = new ApiError(HttpStatus.BAD_REQUEST,
+                    ErrorMessages.INVALID_REQUEST_PARAMETERS);
+            error.getSubErrors().addAll(fieldErrors);
             throw new ApiException(error);
         }
     }

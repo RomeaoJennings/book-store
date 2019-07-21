@@ -186,14 +186,10 @@ class GenreControllerTest {
 
     @Test
     void deleteGenreById() throws Exception {
-        // given
-        when(service.findById(ID_FIRST)).thenReturn(GENRE_FIRST);
-
         // when
         mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
                 .andExpect(status().isOk());
         verify(service, times(1)).deleteById(ID_FIRST);
-        verify(service, times(1)).findById(ID_FIRST);
         verifyNoMoreInteractions(service);
     }
 
@@ -202,19 +198,21 @@ class GenreControllerTest {
         ResultActions request = mockMvc.perform(
                 delete(Endpoints.Genre.URL + "/" + MALFORMED_INT));
         TestUtils.validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
+        verifyZeroInteractions(service);
     }
 
     @Test
-    void deleteAuthorById_withConstraintException() throws Exception {
+    void deleteGenreById_withConstraintException() throws Exception {
         // given
         DataIntegrityViolationException expected = new DataIntegrityViolationException("Msg");
         doThrow(expected).when(service).deleteById(ID_FIRST);
-        when(service.findById(ID_FIRST)).thenReturn(GENRE_FIRST);
 
         // when
         mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.message", equalTo(ErrorMessages.CANNOT_DELETE_RESOURCE)))
                 .andExpect(jsonPath("$.debugMessage", equalTo(expected.toString())));
+        verify(service, times(1)).deleteById(ID_FIRST);
+        verifyNoMoreInteractions(service);
     }
 }

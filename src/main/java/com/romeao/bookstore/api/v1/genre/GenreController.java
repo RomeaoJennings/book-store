@@ -7,7 +7,10 @@ import com.romeao.bookstore.errorhandling.FieldValidator;
 import com.romeao.bookstore.util.ResourceMeta;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(Endpoints.Genre.URL)
@@ -59,10 +62,12 @@ public class GenreController {
     public void deleteGenreById(@PathVariable String genreId) {
         // Validate genreId as valid integer
         int intGenreId = FieldValidator.validateIntField("genreId", genreId);
-
-        if (genreService.findById(intGenreId) == null) {
-            throw new ApiException(HttpStatus.NOT_FOUND, ErrorMessages.RESOURCE_NOT_FOUND);
-        }
         genreService.deleteById(intGenreId);
+    }
+
+    @PostMapping
+    public GenreDto addGenre(@Valid @RequestBody GenreDto genre, BindingResult validation) {
+        FieldValidator.doFieldValidation(validation);
+        return genreService.save(genre);
     }
 }
