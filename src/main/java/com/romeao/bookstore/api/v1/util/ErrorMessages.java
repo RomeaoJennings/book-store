@@ -6,4 +6,6 @@ public class ErrorMessages {
     public static final String INVALID_REQUEST_PARAMETERS = "Invalid request parameters";
     public static final String RESOURCE_NOT_FOUND = "Resource not found";
     public static final String MALFORMED_PARAMETER = "Malformed parameter.";
+    public static final String CANNOT_DELETE_RESOURCE = "The resource cannot be deleted because " +
+            "it is being used by other entities.";
 }

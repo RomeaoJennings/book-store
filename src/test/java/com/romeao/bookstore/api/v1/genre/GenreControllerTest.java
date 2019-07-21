@@ -2,6 +2,7 @@ package com.romeao.bookstore.api.v1.genre;
 
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.api.v1.util.ErrorMessages;
+import com.romeao.bookstore.api.v1.util.TestUtils;
 import com.romeao.bookstore.errorhandling.ApiExceptionHandler;
 import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,7 +22,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -62,12 +63,6 @@ class GenreControllerTest {
         GENRE_THIRD.setName(NAME_THIRD);
 
         dtoList = List.of(GENRE_FIRST, GENRE_SECOND, GENRE_THIRD);
-    }
-
-    @Test
-    void allMocksLoad() {
-        assertNotNull(page);
-        assertNotNull(service);
     }
 
     @Test
@@ -129,7 +124,7 @@ class GenreControllerTest {
                 get(Endpoints.Genre.URL + "?pageSize=1&pageNumber=" + MALFORMED_INT));
 
         // then
-        validateMalformedIntJson(request, "pageNumber", MALFORMED_INT);
+        TestUtils.validateMalformedIntJson(request, "pageNumber", MALFORMED_INT);
         verifyZeroInteractions(service);
     }
 
@@ -140,7 +135,7 @@ class GenreControllerTest {
                 get(Endpoints.Genre.URL + "?pageNumber=1&pageSize=" + MALFORMED_INT));
 
         // then
-        validateMalformedIntJson(request, PAGE_SIZE_FIELD, MALFORMED_INT);
+        TestUtils.validateMalformedIntJson(request, PAGE_SIZE_FIELD, MALFORMED_INT);
         verifyZeroInteractions(service);
     }
 
@@ -186,7 +181,7 @@ class GenreControllerTest {
     void getGenreById_withMalformedId() throws Exception {
         ResultActions request = mockMvc.perform(
                 get(Endpoints.Genre.URL + "/" + MALFORMED_INT));
-        validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
+        TestUtils.validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
     }
 
     @Test
@@ -206,23 +201,20 @@ class GenreControllerTest {
     void deleteGenreById_withMalformedId() throws Exception {
         ResultActions request = mockMvc.perform(
                 delete(Endpoints.Genre.URL + "/" + MALFORMED_INT));
-        validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
+        TestUtils.validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
     }
 
-    private void validateMalformedIntJson(ResultActions request,
-                                          String field,
-                                          String rejectedValue) throws Exception {
-        request.
-                andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message",
-                        equalTo(ErrorMessages.MALFORMED_PARAMETER)))
-                .andExpect(jsonPath("$.status", equalTo(HttpStatus.BAD_REQUEST.name())))
-                .andExpect(jsonPath("$.statusCode", equalTo(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.subErrors", hasSize(1)))
-                .andExpect(jsonPath("$.subErrors[0].field", equalTo(field)))
-                .andExpect(jsonPath("$.subErrors[0].rejectedValue",
-                        equalTo(rejectedValue)))
-                .andExpect(jsonPath("$.subErrors[0].message",
-                        equalTo(ErrorMessages.INVALID_INTEGER)));
+    @Test
+    void deleteAuthorById_withConstraintException() throws Exception {
+        // given
+        DataIntegrityViolationException expected = new DataIntegrityViolationException("Msg");
+        doThrow(expected).when(service).deleteById(ID_FIRST);
+        when(service.findById(ID_FIRST)).thenReturn(GENRE_FIRST);
+
+        // when
+        mockMvc.perform(delete(Endpoints.Genre.byGenreId(ID_FIRST)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message", equalTo(ErrorMessages.CANNOT_DELETE_RESOURCE)))
+                .andExpect(jsonPath("$.debugMessage", equalTo(expected.toString())));
     }
 }

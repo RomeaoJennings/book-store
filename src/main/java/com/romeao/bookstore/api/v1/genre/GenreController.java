@@ -63,9 +63,6 @@ public class GenreController {
         if (genreService.findById(intGenreId) == null) {
             throw new ApiException(HttpStatus.NOT_FOUND, ErrorMessages.RESOURCE_NOT_FOUND);
         }
-
-        // TODO: Add Error Handling for Data Constraint Exceptions
-
         genreService.deleteById(intGenreId);
     }
 }

@@ -1,6 +1,9 @@
 package com.romeao.bookstore.api.v1.author;
 
 import com.romeao.bookstore.api.v1.util.Endpoints;
+import com.romeao.bookstore.api.v1.util.ErrorMessages;
+import com.romeao.bookstore.api.v1.util.TestUtils;
+import com.romeao.bookstore.errorhandling.ApiExceptionHandler;
 import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,8 +12,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
@@ -32,6 +38,12 @@ class AuthorControllerTest {
     private static final String LAST_ONE = "Last One";
     private static final String LAST_TWO = "Last Two";
     private static final String LAST_THREE = "Last Three";
+
+    private static final String MALFORMED_INT = "abc";
+    private static final Integer NEGATIVE_PAGE_SIZE = -1;
+    private static final String GENRE_ID_FIELD = "authorId";
+    private static final String PAGE_SIZE_FIELD = "pageSize";
+
     private static MockMvc mockMvc;
     private AuthorDto authorOne;
     private AuthorDto authorTwo;
@@ -46,7 +58,10 @@ class AuthorControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(controller)
+                .setControllerAdvice(new ApiExceptionHandler())
+                .build();
 
         authorOne = new AuthorDto(FIRST_ONE, LAST_ONE);
         authorTwo = new AuthorDto(FIRST_TWO, LAST_TWO);
@@ -111,6 +126,47 @@ class AuthorControllerTest {
     }
 
     @Test
+    void getAllAuthors_withMalformedPageNumber() throws Exception {
+        // when
+        ResultActions request = mockMvc.perform(
+                get(Endpoints.Author.URL + "?pageSize=1&pageNumber=" + MALFORMED_INT));
+
+        // then
+        TestUtils.validateMalformedIntJson(request, "pageNumber", MALFORMED_INT);
+        verifyZeroInteractions(service);
+    }
+
+    @Test
+    void getAllAuthors_withMalformedPageSize() throws Exception {
+        // when
+        ResultActions request = mockMvc.perform(
+                get(Endpoints.Author.URL + "?pageNumber=1&pageSize=" + MALFORMED_INT));
+
+        // then
+        TestUtils.validateMalformedIntJson(request, PAGE_SIZE_FIELD, MALFORMED_INT);
+        verifyZeroInteractions(service);
+    }
+
+    @Test
+    void getAllAuthors_withNonPositivePageSize() throws Exception {
+        mockMvc.perform(get(Endpoints.Author.byPageNumberAndPageSize(ID_ONE, NEGATIVE_PAGE_SIZE)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message",
+                        equalTo(ErrorMessages.INVALID_REQUEST_PARAMETERS)))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.BAD_REQUEST.name())))
+                .andExpect(jsonPath("$.statusCode",
+                        equalTo(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.subErrors", hasSize(1)))
+                .andExpect(jsonPath("$.subErrors[0].field", equalTo(PAGE_SIZE_FIELD)))
+                .andExpect(jsonPath("$.subErrors[0].rejectedValue",
+                        equalTo(String.valueOf(NEGATIVE_PAGE_SIZE))))
+                .andExpect(jsonPath("$.subErrors[0].message",
+                        equalTo(ErrorMessages.PARAM_MUST_BE_POSITIVE)));
+
+        verifyZeroInteractions(service);
+    }
+
+    @Test
     void getAuthorById() throws Exception {
         // given
         authorOne.getLinks().add(new Link(LinkNames.SELF, Endpoints.Author.byAuthorId(ID_ONE)));
@@ -131,11 +187,43 @@ class AuthorControllerTest {
     }
 
     @Test
+    void getAuthorById_withMalformedId() throws Exception {
+        ResultActions request = mockMvc.perform(
+                get(Endpoints.Author.URL + "/" + MALFORMED_INT));
+        TestUtils.validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
+    }
+
+    @Test
     void deleteAuthorById() throws Exception {
+        // given
+        when(service.findById(ID_ONE)).thenReturn(authorOne);
+
         // when
         mockMvc.perform(delete(Endpoints.Author.byAuthorId(ID_ONE)))
                 .andExpect(status().isOk());
         verify(service, times(1)).deleteById(ID_ONE);
+        verify(service, times(1)).findById(ID_ONE);
         verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void deleteAuthorById_withMalformedId() throws Exception {
+        ResultActions request = mockMvc.perform(
+                delete(Endpoints.Author.URL + "/" + MALFORMED_INT));
+        TestUtils.validateMalformedIntJson(request, GENRE_ID_FIELD, MALFORMED_INT);
+    }
+
+    @Test
+    void deleteAuthorById_withConstraintException() throws Exception {
+        // given
+        DataIntegrityViolationException expected = new DataIntegrityViolationException("Msg");
+        doThrow(expected).when(service).deleteById(ID_ONE);
+        when(service.findById(ID_ONE)).thenReturn(authorOne);
+
+        // when
+        mockMvc.perform(delete(Endpoints.Author.byAuthorId(ID_ONE)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message", equalTo(ErrorMessages.CANNOT_DELETE_RESOURCE)))
+                .andExpect(jsonPath("$.debugMessage", equalTo(expected.toString())));
     }
 }

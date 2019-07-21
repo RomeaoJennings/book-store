@@ -1,9 +1,12 @@
 package com.romeao.bookstore.api.v1.author;
 
 import com.romeao.bookstore.api.v1.util.Endpoints;
+import com.romeao.bookstore.api.v1.util.ErrorMessages;
+import com.romeao.bookstore.errorhandling.ApiException;
 import com.romeao.bookstore.errorhandling.FieldValidator;
 import com.romeao.bookstore.util.ResourceMeta;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,20 +46,23 @@ public class AuthorController {
 
     @GetMapping("/{authorId}")
     public AuthorDto GetAuthor(@PathVariable String authorId) {
+        // Validate authorId as valid integer
         int intAuthorId = FieldValidator.validateIntField("authorId", authorId);
 
-        // TODO: Add Error Checking for not found IDs
-
-        return authorService.findById(intAuthorId);
+        AuthorDto result = authorService.findById(intAuthorId);
+        if (result == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, ErrorMessages.RESOURCE_NOT_FOUND);
+        } else { return result; }
     }
 
     @DeleteMapping("/{authorId}")
     public void deleteAuthorById(@PathVariable String authorId) {
+        // Validate authorId as valid integer
         int intAuthorId = FieldValidator.validateIntField("authorId", authorId);
 
-        // TODO: Add Error Checking for not-found IDs
-        // TODO: Add Error Handling for Data Constraint Exceptions
-
+        if (authorService.findById(intAuthorId) == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, ErrorMessages.RESOURCE_NOT_FOUND);
+        }
         authorService.deleteById(intAuthorId);
     }
 }
