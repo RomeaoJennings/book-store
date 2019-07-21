@@ -3,6 +3,7 @@ package com.romeao.bookstore.api.v1.author;
 import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Author;
 import com.romeao.bookstore.repositories.AuthorRepository;
+import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,14 +11,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthorServiceImplTest {
@@ -25,6 +29,7 @@ class AuthorServiceImplTest {
     private static final Integer ID_ONE = 1;
     private static final Integer ID_TWO = 2;
     private static final Integer ID_THREE = 3;
+    private static final Integer NOT_FOUND_ID = 4;
 
     private static final String FIRST_ONE = "firstOne";
     private static final String FIRST_TWO = "firstTwo";
@@ -44,6 +49,21 @@ class AuthorServiceImplTest {
 
     @InjectMocks
     private AuthorServiceImpl service;
+
+    private static void assertAuthorNameIsCorrect(AuthorDto dto, String firstName,
+                                                  String lastName) {
+        assertNotNull(dto);
+        assertEquals(firstName, dto.getFirstName());
+        assertEquals(lastName, dto.getLastName());
+    }
+
+    private static void assertHasSelfLink(AuthorDto dto, int authorId) {
+        assertNotEquals(0, dto.getLinks().size());
+        Link link = dto.getLinks().get(0);
+
+        assertEquals(LinkNames.SELF, link.getName());
+        assertEquals(Endpoints.Author.byAuthorId(authorId), link.getUrl());
+    }
 
     @BeforeEach
     void setUp() {
@@ -67,16 +87,74 @@ class AuthorServiceImplTest {
 
         // then
         assertNotNull(dtoList);
-        assertEquals(3, dtoList.size());
-        assertEquals(FIRST_ONE, dtoList.get(0).getFirstName());
-        assertEquals(LAST_ONE, dtoList.get(0).getLastName());
-        assertEquals(FIRST_TWO, dtoList.get(1).getFirstName());
-        assertEquals(LAST_TWO, dtoList.get(1).getLastName());
-        assertEquals(FIRST_THREE, dtoList.get(2).getFirstName());
-        assertEquals(LAST_THREE, dtoList.get(2).getLastName());
+        assertAuthorNameIsCorrect(dtoList.get(0), FIRST_ONE, LAST_ONE);
+        assertHasSelfLink(dtoList.get(0), ID_ONE);
+        assertAuthorNameIsCorrect(dtoList.get(1), FIRST_TWO, LAST_TWO);
+        assertHasSelfLink(dtoList.get(1), ID_TWO);
+        assertAuthorNameIsCorrect(dtoList.get(2), FIRST_THREE, LAST_THREE);
+        assertHasSelfLink(dtoList.get(2), ID_THREE);
 
-        assertEquals(Endpoints.Author.byAuthorId(ID_ONE),
-                dtoList.get(0).getLinks().get(0).getUrl());
-        assertEquals(LinkNames.SELF, dtoList.get(0).getLinks().get(0).getName());
+        verify(repository, times(1)).findAll(any(Sort.class));
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void findAll_withPaging() {
+        // given
+        final int PAGE_NUMBER = 1;
+        final int PAGE_SIZE = 1;
+        when(repository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(authorTwo)));
+
+        // when
+        Page<AuthorDto> result = service.findAll(PAGE_NUMBER, PAGE_SIZE);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+        AuthorDto dto = result.getContent().get(0);
+        assertAuthorNameIsCorrect(dto, FIRST_TWO, LAST_TWO);
+        assertHasSelfLink(dto, ID_TWO);
+
+        verify(repository, times(1)).findAll(any(Pageable.class));
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void findById() {
+        // given
+        when(repository.findById(ID_ONE)).thenReturn(Optional.of(authorOne));
+
+        // when
+        AuthorDto dto = service.findById(ID_ONE);
+
+        // then
+        assertAuthorNameIsCorrect(dto, FIRST_ONE, LAST_ONE);
+        assertHasSelfLink(dto, ID_ONE);
+        verify(repository, times(1)).findById(ID_ONE);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void findById_notFound() {
+        // given
+        when(repository.findById(NOT_FOUND_ID)).thenReturn(Optional.empty());
+
+        // when
+        AuthorDto dto = service.findById(NOT_FOUND_ID);
+
+        // then
+        assertNull(dto);
+        verify(repository, times(1)).findById(NOT_FOUND_ID);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void deleteById() {
+        // when
+        service.deleteById(ID_ONE);
+
+        // then
+        verify(repository, times(1)).deleteById(ID_ONE);
+        verifyNoMoreInteractions(repository);
     }
 }
