@@ -71,4 +71,16 @@ public class Endpoints {
             return addPathVariables(URL, String.valueOf(authorId));
         }
     }
+
+    public static class Book {
+        public static final String URL = BASE_API + "/books";
+
+        public static String byPageNumberAndPageSize(int pageNum, int limit) {
+            return addPageNumberAndPageSize(URL, pageNum, limit);
+        }
+
+        public static String byBookId(int bookId) {
+            return addPathVariables(URL, String.valueOf(bookId));
+        }
+    }
 }
