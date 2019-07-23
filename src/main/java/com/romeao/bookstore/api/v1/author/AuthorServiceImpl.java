@@ -7,7 +7,6 @@ import com.romeao.bookstore.util.Link;
 import com.romeao.bookstore.util.LinkNames;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
-    private static final Sort DEFAULT_SORT = Sort.by("lastName", "firstName");
     private static final AuthorMapper authorMapper = AuthorMapper.INSTANCE;
     private final AuthorRepository authorRepository;
 

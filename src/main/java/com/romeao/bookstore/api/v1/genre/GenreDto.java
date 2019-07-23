@@ -5,11 +5,20 @@ import com.romeao.bookstore.api.v1.util.BaseDto;
 
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.Objects;
 
-@JsonPropertyOrder({"name", "links"})
+@JsonPropertyOrder({GenreDto.NAME_FIELD, GenreDto.LINKS_FIELD})
 public class GenreDto extends BaseDto implements Serializable {
+    static final String NAME_FIELD = "name";
+
     @NotBlank
     private String name;
+
+    public GenreDto(String name) {
+        this.name = name;
+    }
+
+    public GenreDto() {}
 
     public String getName() {
         return name;
@@ -17,5 +26,18 @@ public class GenreDto extends BaseDto implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        GenreDto genreDto = (GenreDto) o;
+        return Objects.equals(name, genreDto.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

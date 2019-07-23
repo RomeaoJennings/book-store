@@ -36,4 +36,8 @@ public class AuthorDtoList implements Serializable {
     public ResourceMeta getMeta() {
         return meta;
     }
+
+    public void setMeta(ResourceMeta meta) {
+        this.meta = meta;
+    }
 }

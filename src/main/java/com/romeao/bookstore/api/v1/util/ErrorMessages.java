@@ -9,6 +9,7 @@ public final class ErrorMessages {
     public static final String CANNOT_DELETE_RESOURCE = "The resource cannot be deleted because " +
             "it is being used by other entities.";
     public static final String RESOURCE_EXISTS = "The resource already exists.";
+    public static final String FIELD_REQUIRED = "This field is required.";
 
     private ErrorMessages() {}
 }

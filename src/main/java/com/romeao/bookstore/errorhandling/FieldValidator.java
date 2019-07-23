@@ -35,7 +35,7 @@ public abstract class FieldValidator {
         if (!errors.isEmpty()) {
             ApiError error = new ApiError(HttpStatus.BAD_REQUEST,
                     ErrorMessages.MALFORMED_PARAMETER);
-            error.getSubErrors().addAll(errors);
+            error.getValidationErrors().addAll(errors);
             throw new ApiException(error);
         }
     }
@@ -59,7 +59,7 @@ public abstract class FieldValidator {
         if (Integer.parseInt(pageSize) < 1) {
             ApiError error = new ApiError(HttpStatus.BAD_REQUEST,
                     ErrorMessages.INVALID_REQUEST_PARAMETERS);
-            error.getSubErrors().add(new ApiValidationError(PAGE_SIZE,
+            error.getValidationErrors().add(new ApiValidationError(PAGE_SIZE,
                     ErrorMessages.PARAM_MUST_BE_POSITIVE, pageSize));
             throw new ApiException(error);
         }
@@ -75,7 +75,7 @@ public abstract class FieldValidator {
                             fieldError.getRejectedValue())));
             ApiError error = new ApiError(HttpStatus.BAD_REQUEST,
                     ErrorMessages.INVALID_REQUEST_PARAMETERS);
-            error.getSubErrors().addAll(fieldErrors);
+            error.getValidationErrors().addAll(fieldErrors);
             throw new ApiException(error);
         }
     }

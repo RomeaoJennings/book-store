@@ -1,10 +1,7 @@
 package com.romeao.bookstore.api.v1.author;
 
-import com.romeao.bookstore.api.v1.util.Endpoints;
 import com.romeao.bookstore.domain.Author;
 import com.romeao.bookstore.repositories.AuthorRepository;
-import com.romeao.bookstore.util.Link;
-import com.romeao.bookstore.util.LinkNames;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AuthorServiceImplTest {
+class AuthorServiceImplTest extends AuthorTestUtils {
 
     private static final Integer ID_ONE = 1;
     private static final Integer ID_TWO = 2;
@@ -41,7 +38,6 @@ class AuthorServiceImplTest {
 
     private Author authorOne;
     private Author authorTwo;
-    private Author authorThree;
     private List<Author> authorList;
 
     @Mock
@@ -50,26 +46,11 @@ class AuthorServiceImplTest {
     @InjectMocks
     private AuthorServiceImpl service;
 
-    private static void assertAuthorNameIsCorrect(AuthorDto dto, String firstName,
-                                                  String lastName) {
-        assertNotNull(dto);
-        assertEquals(firstName, dto.getFirstName());
-        assertEquals(lastName, dto.getLastName());
-    }
-
-    private static void assertHasSelfLink(AuthorDto dto, int authorId) {
-        assertNotEquals(0, dto.getLinks().size());
-        Link link = dto.getLinks().get(0);
-
-        assertEquals(LinkNames.SELF, link.getName());
-        assertEquals(Endpoints.Author.byAuthorId(authorId), link.getUrl());
-    }
-
     @BeforeEach
     void setUp() {
         authorOne = Author.builder().id(ID_ONE).firstName(FIRST_ONE).lastName(LAST_ONE).build();
         authorTwo = Author.builder().id(ID_TWO).firstName(FIRST_TWO).lastName(LAST_TWO).build();
-        authorThree = Author.builder()
+        Author authorThree = Author.builder()
                 .id(ID_THREE)
                 .firstName(FIRST_THREE)
                 .lastName(LAST_THREE)

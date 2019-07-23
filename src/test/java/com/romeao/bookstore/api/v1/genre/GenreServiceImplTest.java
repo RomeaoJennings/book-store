@@ -233,10 +233,10 @@ class GenreServiceImplTest {
         ApiError error = exception.getError();
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, error.getStatus());
         assertEquals(ErrorMessages.RESOURCE_EXISTS, error.getMessage());
-        assertEquals(1, error.getSubErrors().size());
-        ApiValidationError subError = (ApiValidationError) error.getSubErrors().get(0);
+        assertEquals(1, error.getValidationErrors().size());
+        ApiValidationError subError = error.getValidationErrors().get(0);
         assertEquals(ErrorMessages.RESOURCE_EXISTS, subError.getMessage());
-        assertEquals(GenreServiceImpl.NAME_FIELD, subError.getField());
+        assertEquals(GenreDto.NAME_FIELD, subError.getField());
         assertEquals(NAME_ONE, subError.getRejectedValue());
 
         verify(repository, times(1)).findByNameIgnoreCase(NAME_ONE);

@@ -60,8 +60,12 @@ public class GenreController {
 
     @DeleteMapping("/{genreId}")
     public void deleteGenreById(@PathVariable String genreId) {
-        // Validate genreId as valid integer
+        // Validate authorId as valid integer
         int intGenreId = FieldValidator.validateIntField("genreId", genreId);
+
+        if (genreService.findById(intGenreId) == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, ErrorMessages.RESOURCE_NOT_FOUND);
+        }
         genreService.deleteById(intGenreId);
     }
 

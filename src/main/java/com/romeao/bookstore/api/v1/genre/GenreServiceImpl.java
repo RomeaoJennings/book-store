@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class GenreServiceImpl implements GenreService {
 
-    public static final String NAME_FIELD = "name";
-    private static final Sort DEFAULT_SORT = Sort.by(NAME_FIELD);
+    private static final Sort DEFAULT_SORT = Sort.by(GenreDto.NAME_FIELD);
     private static final GenreMapper genreMapper = GenreMapper.INSTANCE;
     private final GenreRepository genreRepository;
 
@@ -72,11 +71,11 @@ public class GenreServiceImpl implements GenreService {
     @Override
     public GenreDto save(GenreDto dto) {
         if (findByName(dto.getName()) != null) {
-            ApiValidationError validationErr = new ApiValidationError(NAME_FIELD,
+            ApiValidationError validationErr = new ApiValidationError(GenreDto.NAME_FIELD,
                     ErrorMessages.RESOURCE_EXISTS, dto.getName());
             ApiError apiError = new ApiError(HttpStatus.UNPROCESSABLE_ENTITY,
                     ErrorMessages.RESOURCE_EXISTS);
-            apiError.getSubErrors().add(validationErr);
+            apiError.getValidationErrors().add(validationErr);
             throw new ApiException(apiError);
         }
         return convertToDtoWithSelfLink(genreRepository.save(genreMapper.toEntity(dto)));

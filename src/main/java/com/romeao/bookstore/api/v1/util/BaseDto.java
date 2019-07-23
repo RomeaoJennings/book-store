@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BaseDto {
+    public static final String LINKS_FIELD = "links";
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<Link> links = new ArrayList<>();
