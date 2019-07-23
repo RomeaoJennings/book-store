@@ -61,7 +61,6 @@ class BookBuilderTest {
         assertEquals(PUBLISHER, book.getPublisher());
         assertEquals(1, book.getAuthors().size());
         assertTrue(book.getAuthors().contains(author));
-        assertEquals(ID, author.getBooks().iterator().next().getId());
         assertEquals(1, book.getGenres().size());
         assertTrue(book.getGenres().contains(genre));
     }
@@ -116,7 +115,5 @@ class BookBuilderTest {
         assertNotNull(book);
         assertEquals(1, book.getAuthors().size());
         assertTrue(book.getAuthors().contains(author));
-        assertEquals(1, author.getBooks().size());
-        assertTrue(author.getBooks().contains(book));
     }
 }

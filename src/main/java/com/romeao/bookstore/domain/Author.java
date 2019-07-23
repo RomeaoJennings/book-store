@@ -3,10 +3,8 @@ package com.romeao.bookstore.domain;
 import com.romeao.bookstore.domain.builders.AuthorBuilder;
 
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotBlank;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 @Entity
 public class Author extends BaseEntity {
@@ -15,9 +13,6 @@ public class Author extends BaseEntity {
 
     @NotBlank
     private String lastName;
-
-    @ManyToMany(mappedBy = "authors")
-    private Set<Book> books = new HashSet<>();
 
     public static AuthorBuilder builder() {
         return new AuthorBuilder();
@@ -39,12 +34,18 @@ public class Author extends BaseEntity {
         this.lastName = lastName;
     }
 
-    public Set<Book> getBooks() {
-        return books;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        Author author = (Author) o;
+        return getId() == author.getId() &&
+                Objects.equals(firstName, author.firstName) &&
+                Objects.equals(lastName, author.lastName);
     }
 
-    public void setBooks(Set<Book> books) {
-        this.books = books;
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName);
     }
-
 }

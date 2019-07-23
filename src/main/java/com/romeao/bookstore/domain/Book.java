@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -80,5 +81,25 @@ public class Book extends BaseEntity {
 
     public void setGenres(Set<Genre> genres) {
         this.genres = genres;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        Book book = (Book) o;
+        return Objects.equals(getId(), book.getId()) &&
+                Objects.equals(name, book.name) &&
+                Objects.equals(publisher, book.publisher) &&
+                Objects.equals(price, book.price) &&
+                authors.size() == book.authors.size() &&
+                authors.containsAll(book.authors) &&
+                genres.size() == book.genres.size() &&
+                genres.containsAll(book.genres);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, publisher, price, authors, genres);
     }
 }

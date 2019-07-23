@@ -1,7 +1,6 @@
 package com.romeao.bookstore.domain.builders;
 
 import com.romeao.bookstore.domain.Author;
-import com.romeao.bookstore.domain.Book;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,10 +11,6 @@ class AuthorBuilderTest {
     private static final String FIRST = "Steven";
     private static final String LAST = "King";
 
-    private static final Integer BOOK_ID = 1;
-    private static final String BOOK_NAME = "It";
-    private static final Book BOOK = Book.builder().id(BOOK_ID).name(BOOK_NAME).build();
-
     @Test
     void testAllFields() {
         // when
@@ -23,7 +18,6 @@ class AuthorBuilderTest {
                 .id(ID)
                 .firstName(FIRST)
                 .lastName(LAST)
-                .books(BOOK)
                 .build();
 
         // then
@@ -31,8 +25,6 @@ class AuthorBuilderTest {
         assertEquals(ID, author.getId());
         assertEquals(FIRST, author.getFirstName());
         assertEquals(LAST, author.getLastName());
-        assertEquals(1, author.getBooks().size());
-        assertTrue(author.getBooks().contains(BOOK));
     }
 
     @Test
@@ -69,16 +61,5 @@ class AuthorBuilderTest {
         assertNull(author.getId());
         assertNull(author.getFirstName());
         assertEquals(LAST, author.getLastName());
-    }
-
-    @Test
-    void testWithBooks() {
-        // when
-        Author author = Author.builder().books(BOOK).build();
-
-        // then
-        assertNotNull(author);
-        assertEquals(1, author.getBooks().size());
-        assertTrue(author.getBooks().contains(BOOK));
     }
 }

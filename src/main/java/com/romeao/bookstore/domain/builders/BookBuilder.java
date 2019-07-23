@@ -55,10 +55,7 @@ public class BookBuilder {
 
     public BookBuilder authors(Iterable<Author> authors) {
         Set<Author> result = new HashSet<>();
-        for (Author author : authors) {
-            author.getBooks().add(book);
-            result.add(author);
-        }
+        authors.forEach(result::add);
         book.setAuthors(result);
         return this;
     }

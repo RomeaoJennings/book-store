@@ -1,6 +1,5 @@
 package com.romeao.bookstore.repositories;
 
-import com.romeao.bookstore.domain.Author;
 import com.romeao.bookstore.domain.Book;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +19,6 @@ class JpaRepositoryIT {
     void beansAreNotNull() {
         assertNotNull(authorRepository);
         assertNotNull(bookRepository);
-    }
-
-    @Test
-    void testAuthorRepositoryLoadsRelatedEntities() {
-        // when
-        Author author = authorRepository.findById(1).orElse(null);
-
-        // then
-        assertNotNull(author);
-        assertNotEquals(0, author.getBooks().size());
     }
 
     @Test
