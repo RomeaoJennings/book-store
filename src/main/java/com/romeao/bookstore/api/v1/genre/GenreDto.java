@@ -33,7 +33,9 @@ public class GenreDto extends BaseDto implements Serializable {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         GenreDto genreDto = (GenreDto) o;
-        return Objects.equals(name, genreDto.name);
+        if (!name.equals(genreDto.name)) { return false; }
+        if (getLinks().size() != genreDto.getLinks().size()) { return false; }
+        return getLinks().containsAll(genreDto.getLinks());
     }
 
     @Override

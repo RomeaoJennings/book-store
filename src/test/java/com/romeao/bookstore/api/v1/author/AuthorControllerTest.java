@@ -249,6 +249,22 @@ class AuthorControllerTest extends TestUtils {
     }
 
     @Test
+    void deleteByGenreId_notFound() throws Exception {
+        // GIVEN
+        when(service.findById(ID_FIRST)).thenReturn(null);
+        ApiError expectedError = new ApiError(HttpStatus.NOT_FOUND,
+                ErrorMessages.RESOURCE_NOT_FOUND);
+
+        // WHEN
+        mockMvc.perform(delete(Endpoints.Author.byAuthorId(ID_FIRST)))
+                .andExpect(status().isNotFound())
+                .andExpect(apiError(expectedError));
+
+        verify(service, times(1)).findById(ID_FIRST);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
     void deleteAuthorById_withMalformedId() throws Exception {
         // GIVEN
         ApiError expectedError = ofMalformedIntParameter(AUTHOR_ID_FIELD, MALFORMED_INT);

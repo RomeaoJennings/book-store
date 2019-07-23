@@ -2,7 +2,6 @@ package com.romeao.bookstore.api.v1.author;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.romeao.bookstore.api.v1.util.BaseDto;
-import com.romeao.bookstore.util.Link;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Objects;
@@ -52,12 +51,7 @@ public class AuthorDto extends BaseDto {
                 getLinks().size() != authorDto.getLinks().size()) {
             return false;
         }
-        for (Link link : getLinks()) {
-            if (!authorDto.getLinks().contains(link)) {
-                return false;
-            }
-        }
-        return true;
+        return getLinks().containsAll(authorDto.getLinks());
     }
 
     @Override
