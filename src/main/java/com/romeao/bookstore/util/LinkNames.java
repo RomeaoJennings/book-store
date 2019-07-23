@@ -1,5 +1,7 @@
 package com.romeao.bookstore.util;
 
-public abstract class LinkNames {
+public class LinkNames {
     public static final String SELF = "self";
+
+    protected LinkNames() { }
 }

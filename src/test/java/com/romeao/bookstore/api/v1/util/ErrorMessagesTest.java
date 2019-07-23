@@ -7,11 +7,12 @@ import java.lang.reflect.Modifier;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ErrorMessagesTest {
+class ErrorMessagesTest extends ErrorMessages {
+
     @Test
-    void testHasPrivateConstructor() throws Exception {
+    void testHasProtectedConstructor() throws Exception {
         Constructor constructor = ErrorMessages.class.getDeclaredConstructors()[0];
-        assertTrue(Modifier.isPrivate(constructor.getModifiers()));
+        assertTrue(Modifier.isProtected(constructor.getModifiers()));
 
         constructor.setAccessible(true);
         constructor.newInstance();
