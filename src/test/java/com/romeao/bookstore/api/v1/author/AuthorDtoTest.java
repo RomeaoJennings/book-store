@@ -18,7 +18,7 @@ class AuthorDtoTest {
 
     @BeforeEach
     void setUp() {
-        dto = new AuthorDto(FIRST, LAST);
+        dto = new AuthorDto(ID, FIRST, LAST);
         dto.getLinks().add(new Link(LinkNames.SELF, Endpoints.Author.byAuthorId(ID)));
     }
 
@@ -63,27 +63,40 @@ class AuthorDtoTest {
     }
 
     @Test
+    void equals_withDifferentIds() {
+        AuthorDto dto2 = new AuthorDto(FIRST, LAST);
+
+        assertNotEquals(dto, dto2);
+        assertNotEquals(dto2, dto);
+    }
+
+    @Test
     void equals_differentFirstName() {
+        dto.setId(null);
         AuthorDto dto2 = new AuthorDto("first2", LAST);
         assertNotEquals(dto, dto2);
     }
 
     @Test
     void equals_withDifferentLastName() {
+        dto.setId(null);
         AuthorDto dto2 = new AuthorDto(FIRST, "last2");
         assertNotEquals(dto, dto2);
     }
 
     @Test
     void equals_withDifferentLinkSize() {
+        dto.setId(null);
         AuthorDto dto2 = new AuthorDto(FIRST, LAST);
         assertNotEquals(dto, dto2);
     }
 
     @Test
     void equals_withDifferentLinks() {
+        dto.setId(null);
         AuthorDto dto2 = new AuthorDto(FIRST, LAST);
         dto2.getLinks().add(new Link(LinkNames.SELF, "differentURL"));
+
         assertNotEquals(dto, dto2);
     }
 }

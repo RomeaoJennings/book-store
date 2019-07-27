@@ -70,13 +70,13 @@ class AuthorControllerTest extends TestUtils {
                 .setControllerAdvice(new ApiExceptionHandler())
                 .build();
 
-        authorOne = new AuthorDto(FIRST_ONE, LAST_ONE);
+        authorOne = new AuthorDto(ID_FIRST, FIRST_ONE, LAST_ONE);
         authorOne.getLinks().add(new Link(LinkNames.SELF, Endpoints.Author.byAuthorId(ID_FIRST)));
 
-        authorTwo = new AuthorDto(FIRST_TWO, LAST_TWO);
+        authorTwo = new AuthorDto(ID_SECOND, FIRST_TWO, LAST_TWO);
         authorTwo.getLinks().add(new Link(LinkNames.SELF, Endpoints.Author.byAuthorId(ID_SECOND)));
 
-        AuthorDto authorThree = new AuthorDto(FIRST_THREE, LAST_THREE);
+        AuthorDto authorThree = new AuthorDto(ID_THIRD, FIRST_THREE, LAST_THREE);
         authorThree.getLinks().add(new Link(LinkNames.SELF, Endpoints.Author.byAuthorId(ID_THIRD)));
 
         dtoList = List.of(authorOne, authorTwo, authorThree);

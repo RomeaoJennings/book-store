@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 @JsonPropertyOrder({AuthorDto.FIRST_NAME_FIELD, AuthorDto.LAST_NAME_FIELD, AuthorDto.LINKS_FIELD})
-public class AuthorDto extends BaseDto {
+public class AuthorDto extends BaseDto implements Comparable<AuthorDto> {
     static final String FIRST_NAME_FIELD = "firstName";
     static final String LAST_NAME_FIELD = "lastName";
 
@@ -17,13 +17,18 @@ public class AuthorDto extends BaseDto {
     @NotBlank
     private String lastName;
 
+    public AuthorDto(Integer id, String firstName, String lastName) {
+        super(id);
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public AuthorDto(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public AuthorDto() {
-    }
+    public AuthorDto() { }
 
     public String getFirstName() {
         return firstName;
@@ -45,17 +50,27 @@ public class AuthorDto extends BaseDto {
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
+
         AuthorDto authorDto = (AuthorDto) o;
-        if (!firstName.equals(authorDto.firstName) ||
-                !lastName.equals(authorDto.lastName) ||
-                getLinks().size() != authorDto.getLinks().size()) {
-            return false;
+        // Use ID-based equality if it is available
+        if (getId() != null || authorDto.getId() != null) {
+            return Objects.equals(getId(), authorDto.getId());
         }
-        return getLinks().containsAll(authorDto.getLinks());
+
+        return Objects.equals(firstName, authorDto.firstName) &&
+                Objects.equals(lastName, authorDto.lastName) &&
+                getLinks().size() == authorDto.getLinks().size() &&
+                getLinks().containsAll(authorDto.getLinks());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(firstName, lastName, getLinks());
+    }
+
+    @Override
+    public int compareTo(AuthorDto o) {
+        int last = lastName.compareTo(o.lastName);
+        return last == 0 ? firstName.compareTo(o.firstName) : last;
     }
 }

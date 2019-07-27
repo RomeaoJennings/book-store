@@ -17,7 +17,7 @@ class GenreDtoTest {
 
     @BeforeEach
     void setUp() {
-        dto = new GenreDto(NAME);
+        dto = new GenreDto(ID, NAME);
         dto.getLinks().add(new Link(LinkNames.SELF, Endpoints.Genre.byGenreId(ID)));
     }
 
@@ -50,19 +50,29 @@ class GenreDtoTest {
     }
 
     @Test
+    void equals_withDifferentIds() {
+        GenreDto dto2 = new GenreDto(NAME);
+        assertNotEquals(dto2, dto);
+        assertNotEquals(dto, dto2);
+    }
+
+    @Test
     void equals_withDifferentNames() {
+        dto.setId(null);
         GenreDto dto2 = new GenreDto("name2");
         assertNotEquals(dto, dto2);
     }
 
     @Test
     void equals_withDifferentLinkSize() {
+        dto.setId(null);
         GenreDto dto2 = new GenreDto(NAME);
         assertNotEquals(dto, dto2);
     }
 
     @Test
     void equals_withDifferentLinks() {
+        dto.setId(null);
         GenreDto dto2 = new GenreDto(NAME);
         dto2.getLinks().add(new Link(LinkNames.SELF, "differentUrl"));
         assertNotEquals(dto, dto2);

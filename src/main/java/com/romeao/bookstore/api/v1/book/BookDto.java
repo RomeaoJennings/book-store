@@ -7,9 +7,9 @@ import com.romeao.bookstore.api.v1.util.BaseDto;
 import com.romeao.bookstore.util.Link;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 @JsonPropertyOrder({BookDto.NAME_FIELD, BookDto.PRICE_FIELD, BookDto.PUBLISHER_FIELD,
         BookDto.AUTHORS_FIELD, BookDto.GENRES_FIELD, BaseDto.LINKS_FIELD})
@@ -22,8 +22,8 @@ public class BookDto extends BaseDto {
     static final String GENRES_FIELD = "genres";
 
     // fields
-    private final List<AuthorDto> authors = new ArrayList<>();
-    private final List<GenreDto> genres = new ArrayList<>();
+    private final Set<AuthorDto> authors = new TreeSet<>();
+    private final Set<GenreDto> genres = new TreeSet<>();
     private String name;
     private String publisher;
     private BigDecimal price;
@@ -70,11 +70,11 @@ public class BookDto extends BaseDto {
         setPrice(BigDecimal.valueOf(price));
     }
 
-    public List<AuthorDto> getAuthors() {
+    public Set<AuthorDto> getAuthors() {
         return authors;
     }
 
-    public List<GenreDto> getGenres() {
+    public Set<GenreDto> getGenres() {
         return genres;
     }
 

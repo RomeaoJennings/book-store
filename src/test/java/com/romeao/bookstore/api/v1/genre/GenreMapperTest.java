@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GenreMapperTest {
+    private static final Integer ID = 1;
     private static final String NAME = "Genre";
 
     private static final GenreMapper mapper = GenreMapper.INSTANCE;
@@ -23,28 +24,28 @@ class GenreMapperTest {
     @Test
     void toEntity() {
         // given
-        GenreDto dto = new GenreDto();
-        dto.setName(NAME);
+        GenreDto dto = new GenreDto(ID, NAME);
 
         // when
         Genre entity = mapper.toEntity(dto);
 
         // then
         assertNotNull(entity);
-        assertNull(entity.getId());
+        assertEquals(ID, entity.getId());
         assertEquals(NAME, entity.getName());
     }
 
     @Test
     void toDto() {
         // given
-        Genre entity = Genre.builder().name(NAME).build();
+        Genre entity = Genre.builder().id(ID).name(NAME).build();
 
         // when
         GenreDto dto = mapper.toDto(entity);
 
         // then
         assertNotNull(dto);
+        assertEquals(ID, dto.getId());
         assertEquals(NAME, dto.getName());
     }
 
