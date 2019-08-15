@@ -31,7 +31,7 @@ public class Genre extends BaseEntity {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         Genre genre = (Genre) o;
-        return getId().equals(genre.getId()) &&
+        return Objects.equals(getId(), genre.getId()) &&
                 Objects.equals(name, genre.name);
     }
 
