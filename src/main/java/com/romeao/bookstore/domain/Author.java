@@ -39,7 +39,7 @@ public class Author extends BaseEntity {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         Author author = (Author) o;
-        return getId() == author.getId() &&
+        return getId().equals(author.getId()) &&
                 Objects.equals(firstName, author.firstName) &&
                 Objects.equals(lastName, author.lastName);
     }
