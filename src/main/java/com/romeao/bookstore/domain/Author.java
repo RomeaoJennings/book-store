@@ -11,6 +11,7 @@ public class Author extends BaseEntity {
     @NotBlank
     private String firstName;
 
+
     @NotBlank
     private String lastName;
 
